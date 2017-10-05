@@ -19,6 +19,7 @@ FC1 = 1.5e6;                  #Tone1,Hz
 FC2 = 2.5e6;                  #Tone2,Hz
 NumPeriods = 100; 
 
+
 #######################################
 #### Code Begin
 #######################################
@@ -51,6 +52,7 @@ def Gen1Tone():
       fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
    fot.close()
    print("CWGen: %.0fHz tone generated"%FC1)
+   FFT_IQ(Fs, I_Ch, Q_Ch)
 
 def Gen2Tone():
    Fs = OverSamp*FC1;               #Sampling Frequency
@@ -78,9 +80,34 @@ def Gen2Tone():
       fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
    fot.close()
    print("CWGen: %.0fHz %.0fHz tones generated"%(FC1,FC2))
-   plotData(t, I_Ch, Q_Ch)
+   #plotXY(t, I_Ch, Q_Ch)
+   FFT_IQ(Fs, I_Ch, Q_Ch)
 
-def plotData(t, I_Ch, Q_Ch):
+def FFT_IQ(Fs, I_Ch, Q_Ch):
+   #IQ = np.vectorize(complex)(I_Ch,Q_Ch)
+   IQ = I_Ch + 1j*Q_Ch
+   N = len(IQ)
+   mag = np.fft.fft(IQ)/N
+   mag = mag[range(N/2)]
+   frq = (np.arange(N)*Fs)/N
+   frq = frq[range(N/2)]
+   
+   plt.plot(frq, mag)
+   plt.xlabel('Freq')
+   plt.ylabel('magnitude')
+   plt.grid(True)
+   plt.show()
+
+   
+def plotLine(arry):
+   plt.plot(arry)
+   plt.xlabel('time,sec')
+   plt.ylabel('magnitude')
+   plt.title('plot')
+   plt.grid(True)
+   plt.show()
+
+def plotXY(t, I_Ch, Q_Ch):
    #######################################
    #### Plot Data
    #######################################
@@ -96,5 +123,5 @@ def plotData(t, I_Ch, Q_Ch):
 ### Run if Main
 #####################################################################
 if __name__ == "__main__":
-   Gen2Tone()
+   Gen1Tone()
    #plotData(t, I_Ch, Q_Ch)
