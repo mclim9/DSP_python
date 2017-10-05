@@ -33,6 +33,7 @@ def Gen1Tone():
    t = np.arange(0,StopTime-dt,dt); #create time array
    I_Ch = np.cos(2*np.pi*FC1*t);
    Q_Ch = np.sin(2*np.pi*FC1*t);
+   #Q_Ch = np.zeros(len(t))
 
    #Q_Ch(Q_Ch>maxVal) = maxVal;      #clip Q_Ch maxVal
    #Q_Ch(Q_Ch<-maxVal) = -maxVal;    #clip Q_Ch minVal
@@ -88,9 +89,13 @@ def FFT_IQ(Fs, I_Ch, Q_Ch):
    IQ = I_Ch + 1j*Q_Ch
    N = len(IQ)
    mag = np.fft.fft(IQ)/N
-   mag = mag[range(N/2)]
-   frq = (np.arange(N)*Fs)/N
-   frq = frq[range(N/2)]
+   mag = np.fft.fftshift(mag)
+   #mag = mag[range(N/2)]
+
+   #frq = (np.arange(N)*Fs)/N
+   frq = np.fft.fftfreq(N,d=1/Fs)
+   frq = np.fft.fftshift(frq)
+   #frq = frq[range(N/2)]
    
    plt.plot(frq, mag)
    plt.xlabel('Freq')
@@ -123,5 +128,5 @@ def plotXY(t, I_Ch, Q_Ch):
 ### Run if Main
 #####################################################################
 if __name__ == "__main__":
-   Gen1Tone()
+   Gen2Tone()
    #plotData(t, I_Ch, Q_Ch)
