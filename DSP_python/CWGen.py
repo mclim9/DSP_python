@@ -56,7 +56,7 @@ def Gen1Tone():
    FFT_IQ(Fs, I_Ch, Q_Ch)
 
 def Gen2Tone():
-   Fs = OverSamp*FC1;               #Sampling Frequency
+   Fs = OverSamp*(FC2*FC1)/1e6;     #Sampling Frequency
    StopTime = NumPeriods/FC1;       #Waveforms
    dt = 1/Fs;                       #seconds per sample
    t = np.arange(0,StopTime-dt,dt); #create time array
@@ -97,6 +97,12 @@ def FFT_IQ(Fs, I_Ch, Q_Ch):
    frq = np.fft.fftshift(frq)
    #frq = frq[range(N/2)]
    
+   
+   plt.subplot(2, 1, 1)
+   plt.plot(I_Ch)
+   plt.plot(Q_Ch)
+   
+   plt.subplot(2, 1, 2)
    plt.plot(frq, mag)
    plt.xlabel('Freq')
    plt.ylabel('magnitude')
