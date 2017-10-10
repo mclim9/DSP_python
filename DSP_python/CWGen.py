@@ -14,12 +14,11 @@
 #### User Input
 #######################################
 maxAmpl = 1.0;                #clipping value
-OverSamp = 30;                #Oversampling
+OverSamp = 10;                #Oversampling
 FC1 = 1.5e6;                  #Tone1,Hz
-FC2 = 2.5e6;                  #Tone2,Hz
-NumPeriods = 100; 
-
-
+FC2 = 2.0e6;                  #Tone2,Hz
+NumPeriods = 67
+fBeta = 10;                   #Filter Beta
 #######################################
 #### Code Begin
 #######################################
@@ -53,13 +52,17 @@ def Gen1Tone():
       fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
    fot.close()
    print("CWGen: %.0fHz tone generated"%FC1)
+   
+   #######################################
+   #### Frequency Domain
+   #######################################
    FFT_IQ(Fs, I_Ch, Q_Ch)
 
 def Gen2Tone():
    Fs = OverSamp*(FC2*FC1)/1e6;     #Sampling Frequency
    StopTime = NumPeriods/FC1;       #Waveforms
    dt = 1/Fs;                       #seconds per sample
-   t = np.arange(0,StopTime-dt,dt); #create time array
+   t = np.arange(0,StopTime,dt); #create time array
    I1_Ch = 0.5 * np.cos(2*np.pi*FC1*t);
    Q1_Ch = 0.5 * np.sin(2*np.pi*FC1*t);
    I2_Ch = 0.5 * np.cos(2*np.pi*FC2*t);
@@ -80,36 +83,47 @@ def Gen2Tone():
    for i in range(0,len(I_Ch)):
       fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
    fot.close()
-   print("CWGen: %.0fHz %.0fHz tones generated"%(FC1,FC2))
-   #plotXY(t, I_Ch, Q_Ch)
+   print("Gen2Tone: Sampling Rate %.0fMHz"%(Fs/1e6))
+   print("Gen2Tone: %.0fHz %.0fHz tones generated"%(FC1,FC2))
+   print("Gen2Tone: %.2f %.2f oversample"%(Fs/FC1,Fs/FC2))
    FFT_IQ(Fs, I_Ch, Q_Ch)
 
 def FFT_IQ(Fs, I_Ch, Q_Ch):
+   #######################################
+   #### Calculate FFT
+   #######################################
    #IQ = np.vectorize(complex)(I_Ch,Q_Ch)
    IQ = I_Ch + 1j*Q_Ch
+   
    N = len(IQ)
+   fltr = np.kaiser(N, fBeta)
+   IQ = np.multiply(IQ, fltr)
    mag = np.fft.fft(IQ)/N
    mag = np.fft.fftshift(mag)
    #mag = mag[range(N/2)]
 
    #frq = (np.arange(N)*Fs)/N
-   frq = np.fft.fftfreq(N,d=1/Fs)
+   print("FFT resolution: %.2f"%(Fs/N/1e6))
+   frq = np.fft.fftfreq(N,d=1/(Fs))
    frq = np.fft.fftshift(frq)
    #frq = frq[range(N/2)]
    
-   
+   #######################################
+   #### Plot Data
+   #######################################
    plt.subplot(2, 1, 1)
    plt.plot(I_Ch)
    plt.plot(Q_Ch)
+   plt.plot(IQ,"y")
    
    plt.subplot(2, 1, 2)
    plt.plot(frq, mag)
    plt.xlabel('Freq')
    plt.ylabel('magnitude')
+   plt.xlim(-3e6,3e6)
    plt.grid(True)
    plt.show()
 
-   
 def plotLine(arry):
    plt.plot(arry)
    plt.xlabel('time,sec')
