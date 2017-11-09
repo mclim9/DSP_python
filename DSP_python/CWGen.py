@@ -17,7 +17,7 @@ maxAmpl = 1.0;                #clipping value
 OverSamp = 10;                #Oversampling
 FC1 = 1.5e6;                  #Tone1,Hz
 FC2 = 2.0e6;                  #Tone2,Hz
-NumPeriods = 67
+NumPeriods = 60
 fBeta = 10;                   #Filter Beta
 #######################################
 #### Code Begin
@@ -112,8 +112,8 @@ def FFT_IQ(Fs, I_Ch, Q_Ch):
    #### Plot Data
    #######################################
    plt.subplot(2, 1, 1)
-   plt.plot(I_Ch)
-   plt.plot(Q_Ch)
+#   plt.plot(I_Ch)
+#   plt.plot(Q_Ch)
    plt.plot(IQ,"y")
    
    plt.subplot(2, 1, 2)
