@@ -1,4 +1,4 @@
-class CWGen:
+class CWVar:
    def __init__(self):
       self.maxAmpl = 1.0;                #clipping value
       self.OverSamp = 10;                #Oversampling
@@ -17,5 +17,5 @@ class CWGen:
       return OutStr
         
 if __name__ == "__main__":
-   Test = CWGen()
+   Test = CWVar()
    print(Test)

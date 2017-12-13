@@ -29,12 +29,11 @@ END = Tkinter.END
 #Code specific libraries
 import random
 import math
-import pickle  #to save/load object
-import copy
-from CWGen_Var import CWGen
-import CWGen
+import pickle     #to save/load object
+import copy       #copy object
 from os.path import split
-import test
+from CWGen import CWGen_Class
+CWVar = CWGen_Class()
 
 # *****************************************************************
 # Functions
@@ -55,31 +54,31 @@ def btn_ClearWaves():
    lstWaveF.delete(0,END)
 
 def btn_SaveCond():
-   CWGen.FC1 = Entry1.get()
-   CWGen.FC2 = Entry2.get()
-   CWGen.NumPeriods = Entry3.get()
-   CWGen.fBeta  = Entry4.get()
-   dataSave(CWGen)
+   CWVar.FC1 = float(Entry1.get())
+   CWVar.FC2 = float(Entry2.get())
+   CWVar.NumPeriods = float(Entry3.get())
+   CWVar.fBeta  = float(Entry4.get())
+   dataSave(CWVar)
    
 def btn_Test():
-   test.funcy(GUI,lstOutpt)
+   pass
    
 def btn_Clear():
    posi = lstOutpt.curselection()
    lstOutpt.delete(0,END)
 
 def btn_RunLoops():
-   fprintf("RSATERun: Run Tests")
+   fprintf("CWGen: Run Tests")
    btn_SaveCond()
-   RSVar.FreqArry = map(float,ArrayInput(Entry3.get()))
-   RSVar.PwrArry  = map(float,ArrayInput(Entry4.get()))
-   for i, item in enumerate(RSVar.WvArry):
-      head, tail = split(item)       
-      RSVar.WvArry[i] = tail.split(".")[0]
-   RSVar.GUI_Element = lstOutpt
-   RSVar.GUI_Object = GUI
-   RSATE_K96.main(RSVar)
-   fprintf("RSATERun: Tests Done")
+   CWVar.FC1 = float(Entry1.get())
+   CWVar.FC2 = float(Entry2.get())
+   CWVar.NumPeriods = float(Entry3.get())
+   CWVar.fBeta  = float(Entry4.get())
+   #CWVar.GUI_Element = lstOutpt     #Send GUI window handle
+   #CWVar.GUI_Object = GUI           #Send GUI handle
+   print type(lstOutpt)
+   CWVar.main()
+   fprintf("CWGen Plotted")
    
 def menu_Open():
    asdf = tkFileDialog.askopenfilename()
@@ -115,7 +114,7 @@ def fprintf(inStr):
 
 def dataSave(data):
    with open("CWGen_GUI.dat","wb") as f:
-      print data
+      #print data
       pickle.dump(data, f)
    fprintf("DataSave: File Saved")
 
@@ -125,28 +124,28 @@ def dataLoad():
          data = pickle.load(f)
       fprintf("DataLoad: OK")
    except:
-      data = CWGen()
+      data = copy.copy(CWVar)
       fprintf("DataLoad: Default")
    return data
                  
 # *****************************************************************
 # Define GUI Widgets
 # *****************************************************************
-#CWGen = copy.copy(dataLoad())
+CWVar = copy.copy(dataLoad())
 GUI = Tkinter.Tk()                                 #Create GUI object
 GUI.title("CW to FFT View")                 #GUI Title
 Lbl1 = Tkinter.Label(GUI, text="FC1")           #Create Label
 Entry1 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Create Entry background
-Entry1.insert(END, CWGen.FC1)                   #Default Value
+Entry1.insert(END, CWVar.FC1)                   #Default Value
 Lbl2 = Tkinter.Label(GUI, text="FC2")           #Create Label
 Entry2 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Entry Background
-Entry2.insert(END, CWGen.FC2)                   #Default Value
+Entry2.insert(END, CWVar.FC2)                   #Default Value
 Lbl3 = Tkinter.Label(GUI, text="NumPeriods")       #Create Label
 Entry3 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Entry Background
-Entry3.insert(END, CWGen.NumPeriods)                 #Default Value
+Entry3.insert(END, CWVar.NumPeriods)                 #Default Value
 Lbl4 = Tkinter.Label(GUI, text="Filter Beta")      #Create Label
 Entry4 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Entry Background
-Entry4.insert(END, CWGen.fBeta)                  #Default Value
+Entry4.insert(END, CWVar.fBeta)                  #Default Value
 btnWaveF = Tkinter.Button(GUI, width=btnWid, text = "Select *.WV", command = btn_Waveforms)
 btnWaveC = Tkinter.Button(GUI, width=btnWid, text = "Clear Waves", command = btn_ClearWaves)
 btnSaveC = Tkinter.Button(GUI, width=btnWid, text = "Save", command = btn_SaveCond)
