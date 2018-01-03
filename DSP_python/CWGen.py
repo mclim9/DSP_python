@@ -39,10 +39,11 @@ class CWGen_Class:
       return OutStr
                
    def main(self):
-      Fs = self.OverSamp*(self.FC2*self.FC1)/1e6;     #Sampling Frequency
-      StopTime = self.NumPeriods/self.FC1;       #Waveforms
-      dt = 1/Fs;                       #seconds per sample
-      t = np.arange(0,StopTime,dt); #create time array
+      Fs = self.OverSamp*(self.FC2*self.FC1)/1e6;  #Sampling Frequency
+      StopTime = self.NumPeriods/self.FC1;         #Waveforms
+      dt = 1/Fs;                                   #seconds per sample
+      t = np.arange(0,StopTime,dt);                #create time array
+      t = np.linspace(0,StopTime,num=OverSamp*NumPeriods, endpoint=False);   #Create time array
       I1_Ch = 0.5 * np.cos(2*np.pi*self.FC1*t);
       Q1_Ch = 0.5 * np.sin(2*np.pi*self.FC1*t);
       I2_Ch = 0.5 * np.cos(2*np.pi*self.FC2*t);
