@@ -49,10 +49,9 @@ def btn_Waveforms():
       lstWaveF.insert(END,i)
    lstWaveF.see(END)
  
-def btn_ClearWaves():
-   posi = lstWaveF.curselection()
-   lstWaveF.delete(0,END)
-
+def btn_WaveCreate():
+   execfile("CreateWv.py")
+   
 def btn_SaveCond():
    CWVar.FC1 = float(Entry1.get())
    CWVar.FC2 = float(Entry2.get())
@@ -147,7 +146,7 @@ Lbl4 = Tkinter.Label(GUI, text="Filter Beta")      #Create Label
 Entry4 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Entry Background
 Entry4.insert(END, CWVar.fBeta)                  #Default Value
 btnWaveF = Tkinter.Button(GUI, width=btnWid, text = "Select *.WV", command = btn_Waveforms)
-btnWaveC = Tkinter.Button(GUI, width=btnWid, text = "Clear Waves", command = btn_ClearWaves)
+btnWaveC = Tkinter.Button(GUI, width=btnWid, text = "Gen *.wv", command = btn_WaveCreate)
 btnSaveC = Tkinter.Button(GUI, width=btnWid, text = "Save", command = btn_SaveCond)
 btnClear = Tkinter.Button(GUI, width=btnWid, text = "Test", command = btn_Test)
 btnRunIt = Tkinter.Button(GUI, width=btnWid, text = "Run", command = btn_RunLoops)
