@@ -24,10 +24,11 @@ class CWGen_Class:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 10;                 #Oversampling
-      self.FC1 = 1.5e6;                  #Tone1,Hz
+      self.FC1 = 1.0e6;                  #Tone1,Hz
       self.FC2 = 2.0e6;                   #Tone2,Hz
-      self.NumPeriods = 10                #Number of Periods
+      self.NumPeriods = 60                #Number of Periods
       self.fBeta = 0;                     #Filter Beta
+      self.IQlen = 0;                     #IQ Length
       self.IQpoints = 0;                  #Display points
    def __str__(self):
       OutStr = 'maxAmpl    : %5.2f\n'%self.maxAmpl +\
@@ -39,7 +40,7 @@ class CWGen_Class:
       return OutStr
                
    def main(self):
-      Fs = self.OverSamp*(self.FC1*self.FC2)/1e6;  #Sampling Frequency
+      Fs = self.OverSamp*(self.FC1);           #Sampling Frequency
       StopTime = self.NumPeriods/self.FC1;         #Waveforms
       dt = 1/Fs;                                   #seconds per sample
       t = np.arange(0,StopTime,dt);                #create time array
@@ -50,6 +51,7 @@ class CWGen_Class:
       Q2_Ch = 0.5 * np.sin(2*np.pi*self.FC2*t);
       I_Ch = I1_Ch + I2_Ch
       Q_Ch = Q1_Ch + Q2_Ch
+      self.IQlen = len(t)
 
       fot = open("CreateWv.env", 'w')
       fot.write("#################################\n")
@@ -64,9 +66,9 @@ class CWGen_Class:
       for i in range(0,len(I_Ch)):
          fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
       fot.close()
-      print("Gen2Tone: %d Samples @ %.0fMHz"%(len(I_Ch),Fs/1e6))
-      print("Gen2Tone: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
-      print("Gen2Tone: %.2f %.2f oversample"%(Fs/self.FC1,Fs/self.FC2))
+      print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
+      print("CWGen: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
+      print("CWGen: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
       self.FFT_IQ(Fs, I_Ch, Q_Ch)
 
    def FFT_IQ(self, Fs, I_Ch, Q_Ch):
@@ -76,16 +78,15 @@ class CWGen_Class:
       #IQ = np.vectorize(complex)(I_Ch,Q_Ch)
       IQ = I_Ch + 1j*Q_Ch
       
-      N = len(IQ)
       #fltr = np.kaiser(N, self.fBeta)
       #IQ = np.multiply(IQ, fltr)
-      mag = np.fft.fft(IQ)/N
+      mag = np.fft.fft(IQ)/self.IQlen
       mag = np.fft.fftshift(mag)
       #mag = mag[range(N/2)]
 
       #frq = (np.arange(N)*Fs)/N
-      print("FFT resolution: %.3fkHz"%(Fs/(N + 0)/1e3))
-      frq = np.fft.fftfreq(N,d=1/(Fs))
+      print("FFT resolution: %.3fkHz"%(Fs/(self.IQlen + 0)/1e3))
+      frq = np.fft.fftfreq(self.IQlen,d=1/(Fs))
       frq = np.fft.fftshift(frq)
       #frq = frq[range(N/2)]
       
