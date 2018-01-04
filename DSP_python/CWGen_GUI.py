@@ -66,13 +66,14 @@ def btn_Clear():
    posi = lstOutpt.curselection()
    lstOutpt.delete(0,END)
 
-def btn_RunLoops():
+def btn_PlotFFT():
    fprintf("CWGen: Run Tests")
    btn_SaveCond()
    CWVar.FC1 = float(Entry1.get())
    CWVar.FC2 = float(Entry2.get())
    CWVar.NumPeriods = float(Entry3.get())
    CWVar.fBeta  = float(Entry4.get())
+   CWVar.OverSamp  = float(Entry5.get())
    #CWVar.GUI_Element = lstOutpt     #Send GUI window handle
    #CWVar.GUI_Object = GUI           #Send GUI handle
    print type(lstOutpt)
@@ -132,24 +133,28 @@ def dataLoad():
 # *****************************************************************
 CWVar = copy.copy(dataLoad())
 GUI = Tkinter.Tk()                                 #Create GUI object
-GUI.title("CW to FFT View")                 #GUI Title
-Lbl1 = Tkinter.Label(GUI, text="FC1")           #Create Label
+GUI.title("CW to FFT View")                        #GUI Title
+Lbl1 = Tkinter.Label(GUI, text="FC1")              #Create Label
 Entry1 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Create Entry background
-Entry1.insert(END, CWVar.FC1)                   #Default Value
-Lbl2 = Tkinter.Label(GUI, text="FC2")           #Create Label
+Entry1.insert(END, CWVar.FC1)                      #Default Value
+Lbl2 = Tkinter.Label(GUI, text="FC2")              #Create Label
 Entry2 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Entry Background
-Entry2.insert(END, CWVar.FC2)                   #Default Value
+Entry2.insert(END, CWVar.FC2)                      #Default Value
 Lbl3 = Tkinter.Label(GUI, text="NumPeriods")       #Create Label
 Entry3 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Entry Background
-Entry3.insert(END, CWVar.NumPeriods)                 #Default Value
+Entry3.insert(END, CWVar.NumPeriods)               #Default Value
 Lbl4 = Tkinter.Label(GUI, text="Filter Beta")      #Create Label
 Entry4 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Entry Background
-Entry4.insert(END, CWVar.fBeta)                  #Default Value
+Entry4.insert(END, CWVar.fBeta)                    #Default Value
+Lbl5 = Tkinter.Label(GUI, text="OverSamp=Fs/FC1")  #Create Label
+Entry5 = Tkinter.Entry(GUI,bg=ColorBG, fg=ColorFG,insertbackground=ColorCurs) #Entry Background
+Entry5.insert(END, CWVar.OverSamp)                 #Default Value
+
 btnWaveF = Tkinter.Button(GUI, width=btnWid, text = "Select *.WV", command = btn_Waveforms)
 btnWaveC = Tkinter.Button(GUI, width=btnWid, text = "Gen *.wv", command = btn_WaveCreate)
 btnSaveC = Tkinter.Button(GUI, width=btnWid, text = "Save", command = btn_SaveCond)
 btnClear = Tkinter.Button(GUI, width=btnWid, text = "Test", command = btn_Test)
-btnRunIt = Tkinter.Button(GUI, width=btnWid, text = "Run", command = btn_RunLoops)
+btnRunIt = Tkinter.Button(GUI, width=btnWid, text = "Plot", command = btn_PlotFFT)
 btnQuit  = Tkinter.Button(GUI, width=btnWid, text = "Quit", command = menu_Exit)
 lstOutpt = Tkinter.Listbox(GUI, width=textWindWid,bg=ColorBG, fg=ColorFG)
 srlOutpt = ttk.Scrollbar(GUI, orient=Tkinter.VERTICAL, command=lstOutpt.yview) #Create scrollbar S
@@ -168,10 +173,13 @@ Lbl1.grid(row=0,column=0,sticky=Tkinter.E,columnspan=1)
 Lbl2.grid(row=1,column=0,sticky=Tkinter.E,columnspan=1)
 Lbl3.grid(row=2,column=0,sticky=Tkinter.E,columnspan=1)
 Lbl4.grid(row=3,column=0,sticky=Tkinter.E,columnspan=1)
+Lbl5.grid(row=4,column=0,sticky=Tkinter.E,columnspan=1)
 Entry1.grid(row=0,column=1,columnspan=1)
 Entry2.grid(row=1,column=1,columnspan=1)
 Entry3.grid(row=2,column=1,columnspan=1)
 Entry4.grid(row=3,column=1,columnspan=1)
+Entry5.grid(row=4,column=1,columnspan=1)
+
 btnWaveF.grid(row=btnRow,column=0)
 btnWaveC.grid(row=btnRow,column=1)
 btnSaveC.grid(row=btnRow,column=2)
