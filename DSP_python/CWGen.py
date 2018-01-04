@@ -85,7 +85,6 @@ class CWGen_Class:
       #mag = mag[range(N/2)]
 
       #frq = (np.arange(N)*Fs)/N
-      print("FFT resolution: %.3fkHz"%(Fs/(self.IQlen + 0)/1e3))
       frq = np.fft.fftfreq(self.IQlen,d=1/(Fs))
       frq = np.fft.fftshift(frq)
       #frq = frq[range(N/2)]
