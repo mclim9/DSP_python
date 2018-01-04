@@ -17,7 +17,7 @@ maxAmpl = 1.0;                #clipping value
 OverSamp = 10;                #Oversampling
 FC1 = 1.0e6;                  #Tone1,Hz
 FC2 = 2.0e6;                  #Tone2,Hz
-NumPeriods = 5
+NumPeriods = 20
 fBeta = 10;                   #Filter Beta
 filtOn = 0;
 #######################################
@@ -27,12 +27,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def Gen1Tone():
-   ### I:Cos Q:Sin  -Frq:Nul +Frq:Pos
-   ### I:Sin Q:Cos  -Frq:Neg +Frq:Nul
-   ### I:Cos Q:Zer  -Frq:Pos +Frq:Pos
+   ### I:Cos Q:Sin  -Frq:Nul +Frq:Pos 1.000 Normal Case
+   ### I:Sin Q:Cos  -Frq:Neg +Frq:Nul 1.500
+   ### I:Cos Q:Zer  -Frq:Pos +Frq:Pos 0.500
    ### I:Sin Q:Zer  -Frq:Neg +Frq:Neg 0.015
-   ### I:Zer Q:Sin  -Frq:Neg +Frq:Pos
-   ### I:Zer Q:Cos  -Frq:Neg +Frq:Pos Minor signal
+   ### I:Zer Q:Sin  -Frq:Neg +Frq:Pos 0.500
+   ### I:Zer Q:Cos  -Frq:Neg +Frq:Pos 0.015
    
    Fs = OverSamp*FC1;               #Sampling Frequency
    StopTime = NumPeriods/FC1;       #Waveforms
@@ -41,8 +41,8 @@ def Gen1Tone():
    #t = np.arange(0,StopTime,dt);    #Create time array
    I_Ch = np.zeros(len(t))          #Initialize w/ Zeros
    Q_Ch = np.zeros(len(t))          #Initialize w/ Zeros
-   I_Ch = np.cos(2*np.pi*FC1*t);
-   Q_Ch = np.sin(2*np.pi*FC1*t);
+   #I_Ch = np.sin(2*np.pi*FC1*t);
+   Q_Ch = np.cos(2*np.pi*FC1*t);
    
    print "NumTime:" + str(len(t))
 
@@ -74,7 +74,7 @@ def Gen2Tone():
    Fs = OverSamp*(FC2*FC1)/1e6;     #Sampling Frequency
    StopTime = NumPeriods/FC1;       #Waveforms
    dt = 1/Fs;                       #seconds per sample
-   t = np.arange(0,StopTime,dt); #create time array
+   t = np.arange(0,StopTime,dt);    #create time array
    I1_Ch = 0.5 * np.cos(2*np.pi*FC1*t);
    Q1_Ch = 0.5 * np.sin(2*np.pi*FC1*t);
    I2_Ch = 0.5 * np.cos(2*np.pi*FC2*t);
@@ -126,9 +126,10 @@ def FFT_IQ(Fs, I_Ch, Q_Ch):
    #### Plot Data
    #######################################
    plt.subplot(2, 1, 1)
-#   plt.plot(I_Ch)
-#   plt.plot(Q_Ch)
-   plt.plot(IQ,"y")
+   plt.title("I:Blue Q:Yellow")
+   plt.plot(I_Ch,"b",I_Ch,"b+")
+   plt.plot(Q_Ch,"y",Q_Ch,"yo")
+   #plt.plot(IQ,"y")
    
    plt.subplot(2, 1, 2)
    plt.plot(frq, mag,'o')
@@ -163,4 +164,4 @@ def plotXY(t, I_Ch, Q_Ch):
 ### Run if Main
 #####################################################################
 if __name__ == "__main__":
-   Gen1Tone()
+   Gen2Tone()
