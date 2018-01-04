@@ -24,9 +24,9 @@ class CWGen_Class:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 10;                 #Oversampling
-      self.FC1 = 1.75e6;                  #Tone1,Hz
+      self.FC1 = 1.5e6;                  #Tone1,Hz
       self.FC2 = 2.0e6;                   #Tone2,Hz
-      self.NumPeriods = 60                #Number of Periods
+      self.NumPeriods = 10                #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQpoints = 0;                  #Display points
    def __str__(self):
@@ -39,11 +39,11 @@ class CWGen_Class:
       return OutStr
                
    def main(self):
-      Fs = self.OverSamp*(self.FC2*self.FC1)/1e6;  #Sampling Frequency
+      Fs = self.OverSamp*(self.FC1*self.FC2)/1e6;  #Sampling Frequency
       StopTime = self.NumPeriods/self.FC1;         #Waveforms
       dt = 1/Fs;                                   #seconds per sample
       t = np.arange(0,StopTime,dt);                #create time array
-      t = np.linspace(0,StopTime,num=OverSamp*NumPeriods, endpoint=False);   #Create time array
+      t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False);   #Create time array
       I1_Ch = 0.5 * np.cos(2*np.pi*self.FC1*t);
       Q1_Ch = 0.5 * np.sin(2*np.pi*self.FC1*t);
       I2_Ch = 0.5 * np.cos(2*np.pi*self.FC2*t);
@@ -64,8 +64,8 @@ class CWGen_Class:
       for i in range(0,len(I_Ch)):
          fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
       fot.close()
-      print("Gen2Tone: Sampling Rate %.0fMHz"%(Fs/1e6))
-      print("Gen2Tone: %.0fHz %.0fHz tones generated"%(self.FC1,self.FC2))
+      print("Gen2Tone: %d Samples @ %.0fMHz"%(len(I_Ch),Fs/1e6))
+      print("Gen2Tone: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
       print("Gen2Tone: %.2f %.2f oversample"%(Fs/self.FC1,Fs/self.FC2))
       self.FFT_IQ(Fs, I_Ch, Q_Ch)
 
@@ -77,8 +77,8 @@ class CWGen_Class:
       IQ = I_Ch + 1j*Q_Ch
       
       N = len(IQ)
-      fltr = np.kaiser(N, self.fBeta)
-      IQ = np.multiply(IQ, fltr)
+      #fltr = np.kaiser(N, self.fBeta)
+      #IQ = np.multiply(IQ, fltr)
       mag = np.fft.fft(IQ)/N
       mag = np.fft.fftshift(mag)
       #mag = mag[range(N/2)]
@@ -94,7 +94,9 @@ class CWGen_Class:
       #######################################
       plt.clf()
       plt.subplot(2, 1, 1)       #Time Domain
-      plt.plot(IQ)
+      plt.title("I:Blue Q:Yellow")
+      plt.plot(I_Ch,"b",I_Ch,"b")
+      plt.plot(Q_Ch,"y",Q_Ch,"y")
       
       plt.subplot(2, 1, 2)       # Frequency Domain
       if self.IQpoints:
@@ -102,7 +104,7 @@ class CWGen_Class:
       plt.plot(frq, mag)
       plt.xlabel('Freq')
       plt.ylabel('magnitude')
-      plt.xlim(-3e6,3e6)
+#      plt.xlim(-3e6,3e6)
       plt.grid(True)
       plt.show()
 
@@ -131,4 +133,4 @@ class CWGen_Class:
 #####################################################################
 if __name__ == "__main__":
    asdf = CWGen_Class()    #Create object
-   asdf.main()       #Call main
+   asdf.main()             #Call main
