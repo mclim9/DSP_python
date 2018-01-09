@@ -51,6 +51,8 @@ def btn_Waveforms():
  
 def btn_WaveCreate():
    execfile("CreateWv.py")
+   fprintf("Waveform File created")
+   
    
 def btn_SaveCond():
    CWVar.FC1 = float(Entry1.get())
