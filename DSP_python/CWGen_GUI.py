@@ -55,6 +55,11 @@ def btn_WaveCreate():
    
    
 def btn_SaveCond():
+   try:
+      del CWVar.GUI_Element 
+      del CWVar.GUI_Object 
+   except:
+      pass
    CWVar.FC1 = float(Entry1.get())
    CWVar.FC2 = float(Entry2.get())
    CWVar.NumPeriods = float(Entry3.get())
@@ -76,8 +81,8 @@ def btn_PlotFFT():
    CWVar.NumPeriods = float(Entry3.get())
    CWVar.fBeta  = float(Entry4.get())
    CWVar.OverSamp  = float(Entry5.get())
-   #CWVar.GUI_Element = lstOutpt     #Send GUI window handle
-   #CWVar.GUI_Object = GUI           #Send GUI handle
+   CWVar.GUI_Element = lstOutpt     #Send GUI window handle
+   CWVar.GUI_Object = GUI           #Send GUI handle
    print type(lstOutpt)
    CWVar.main()
    fprintf("CWGen Plotted")
