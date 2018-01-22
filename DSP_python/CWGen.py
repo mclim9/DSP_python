@@ -25,7 +25,7 @@ class CWGen_Class:
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 10;                 #Oversampling
       self.FC1 = 1.0e6;                  #Tone1,Hz
-      self.FC2 = 2.0e6;                   #Tone2,Hz
+      self.FC2 = 0.01e-6;                   #Tone2,Hz
       self.NumPeriods = 60                #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
@@ -38,9 +38,19 @@ class CWGen_Class:
                'NumPeriods : %5.2f\n'%self.NumPeriods +\
                'fBeta      : %5.2f\n'%self.fBeta 
       return OutStr
-               
+   
    def main(self):
-      Fs = self.OverSamp*(self.FC1);           #Sampling Frequency
+      self.Gen2Tone()
+               
+   def Gen2Tone(self):
+      ### I:Cos Q:Sin  -Frq:Nul +Frq:Pos 1.000 Normal Case
+      ### I:Sin Q:Cos  -Frq:Neg +Frq:Nul 1.500
+      ### I:Cos Q:Zer  -Frq:Pos +Frq:Pos 0.500
+      ### I:Sin Q:Zer  -Frq:Neg +Frq:Neg 0.015
+      ### I:Zer Q:Sin  -Frq:Neg +Frq:Pos 0.500
+      ### I:Zer Q:Cos  -Frq:Neg +Frq:Pos 0.015
+
+      Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
       StopTime = self.NumPeriods/self.FC1;         #Waveforms
       dt = 1/Fs;                                   #seconds per sample
       t = np.arange(0,StopTime,dt);                #create time array
@@ -69,6 +79,13 @@ class CWGen_Class:
       print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
       print("CWGen: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
       print("CWGen: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
+      try:
+         self.GUI_Element.insert(0,"CWGen")
+         #self.GUI_Element.see(END)
+         self.GUI_Object.update()
+      except:
+         pass
+         
       self.FFT_IQ(Fs, I_Ch, Q_Ch)
 
    def FFT_IQ(self, Fs, I_Ch, Q_Ch):
