@@ -23,9 +23,9 @@ import numpy as np
 class CWGen_Class:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
-      self.OverSamp = 10;                 #Oversampling
-      self.FC1 = 1.0e6;                  #Tone1,Hz
-      self.FC2 = 0.01e-6;                   #Tone2,Hz
+      self.OverSamp = 100;                 #Oversampling
+      self.FC1 = 10.0e6;                  #Tone1,Hz
+      self.FC2 = 15.0e6;                   #Tone2,Hz
       self.NumPeriods = 60                #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
@@ -38,10 +38,7 @@ class CWGen_Class:
                'NumPeriods : %5.2f\n'%self.NumPeriods +\
                'fBeta      : %5.2f\n'%self.fBeta 
       return OutStr
-   
-   def main(self):
-      self.Gen2Tone()
-               
+
    def Gen2Tone(self):
       ### I:Cos Q:Sin  -Frq:Nul +Frq:Pos 1.000 Normal Case
       ### I:Sin Q:Cos  -Frq:Neg +Frq:Nul 1.500
@@ -62,7 +59,38 @@ class CWGen_Class:
       I_Ch = I1_Ch + I2_Ch
       Q_Ch = Q1_Ch + Q2_Ch
       self.IQlen = len(t)
+      
+      self.WvWrite(Fs,I_Ch,Q_Ch)
+      print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
+      print("CWGen: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
+      print("CWGen: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
+      try:
+         self.GUI_Element.insert(0,"CWGen")
+         self.GUI_Object.update()
+      except:
+         pass
+      self.FFT_IQ(Fs, I_Ch, Q_Ch)
 
+   def Gen_FM(self):
+      ### Source:   https://gist.github.com/fedden/d06cd490fcceab83952619311556044a
+      Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
+      modulator_freq = self.FC2
+      carrier_freq = self.FC1
+      modulation_index = 1.0
+
+      time = np.arange(44100.0) / 44100.0
+      modulator = np.sin(2.0 * np.pi * modulator_freq * time) * modulation_index
+      carrier = np.sin(2.0 * np.pi * carrier_freq * time)
+      I_product = np.zeros_like(modulator)
+      Q_product = np.zeros_like(modulator)
+
+      for i, t in enumerate(time):
+          I_product[i] = np.cos(2. * np.pi * (carrier_freq * t + modulator[i]))
+          Q_product[i] = np.sin(2. * np.pi * (carrier_freq * t + modulator[i]))
+          
+      self.WvWrite(Fs,I_product,Q_product)
+   
+   def WvWrite(self,Fs, I_Ch, Q_Ch):
       fot = open("CreateWv.env", 'w')
       fot.write("#################################\n")
       fot.write("### CWGen Waveform\n")
@@ -76,18 +104,9 @@ class CWGen_Class:
       for i in range(0,len(I_Ch)):
          fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
       fot.close()
-      print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
-      print("CWGen: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
-      print("CWGen: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
-      try:
-         self.GUI_Element.insert(0,"CWGen")
-         #self.GUI_Element.see(END)
-         self.GUI_Object.update()
-      except:
-         pass
-         
-      self.FFT_IQ(Fs, I_Ch, Q_Ch)
+      #print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
 
+   
    def FFT_IQ(self, Fs, I_Ch, Q_Ch):
       #######################################
       #### Calculate FFT
@@ -150,4 +169,5 @@ class CWGen_Class:
 #####################################################################
 if __name__ == "__main__":
    asdf = CWGen_Class()    #Create object
-   asdf.main()             #Call main
+   asdf.Gen2Tone()             #Call main
+   #asdf.Gen_FM()
