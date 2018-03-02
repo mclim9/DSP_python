@@ -36,8 +36,8 @@
 # User Input Settings
 #*****************************************************************
 WaveRead = "CreateWv.env"
-# Comment = ""     #Value in File
-# Clock = 51200000        #Value in File
+# Comment = ""             #Value in File
+# Clock = 51200000         #Value in File
 
 #*****************************************************************
 # Code Start
