@@ -58,7 +58,6 @@ class CWGen_Class:
       Q2_Ch = 0.5 * np.sin(2*np.pi*self.FC2*t);
       I_Ch = I1_Ch + I2_Ch
       Q_Ch = Q1_Ch + Q2_Ch
-      self.IQlen = len(t)
       
       self.WvWrite(Fs,I_Ch,Q_Ch)
       print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
@@ -69,7 +68,7 @@ class CWGen_Class:
          self.GUI_Object.update()
       except:
          pass
-      self.FFT_IQ(Fs, I_Ch, Q_Ch)
+      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
 
    def Gen_FM(self):
       ### Source:   https://gist.github.com/fedden/d06cd490fcceab83952619311556044a
@@ -85,15 +84,16 @@ class CWGen_Class:
       #time = np.arange(NumPts) / NumPts
       modulator = np.sin(2.0 * np.pi * modulator_freq * time) * modulation_index
       carrier = np.sin(2.0 * np.pi * carrier_freq * time)
-      I_product = np.zeros_like(modulator)
-      Q_product = np.zeros_like(modulator)
+      I_Ch = np.zeros_like(modulator)
+      Q_Ch = np.zeros_like(modulator)
 
       for i, t in enumerate(time):
-          I_product[i] = np.cos(2. * np.pi * (carrier_freq * t + modulator[i]))
-          Q_product[i] = np.sin(2. * np.pi * (carrier_freq * t + modulator[i]))
+          I_Ch[i] = np.cos(2. * np.pi * (carrier_freq * t + modulator[i]))
+          Q_Ch[i] = np.sin(2. * np.pi * (carrier_freq * t + modulator[i]))
           
-      self.WvWrite(Fs,I_product,Q_product)
-      self.plotLine(I_product, Q_product)
+      self.WvWrite(Fs,I_Ch, Q_Ch)
+      #self.plotXY(time, I_Ch, Q_Ch)
+      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
       
    def WvWrite(self,Fs, I_Ch, Q_Ch):
       fot = open("CreateWv.env", 'w')
@@ -112,15 +112,17 @@ class CWGen_Class:
       #print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
 
    
-   def FFT_IQ(self, Fs, I_Ch, Q_Ch):
+   def plot_IQ_FFT(self, Fs, I_Ch, Q_Ch):
       #######################################
       #### Calculate FFT
       #######################################
       #IQ = np.vectorize(complex)(I_Ch,Q_Ch)
       IQ = I_Ch + 1j*Q_Ch
+      self.IQlen = len(I_Ch)
       
-      #fltr = np.kaiser(N, self.fBeta)
-      #IQ = np.multiply(IQ, fltr)
+      if 0:    #Apply Filter
+         fltr = np.kaiser(N, self.fBeta)
+         IQ = np.multiply(IQ, fltr)
       mag = np.fft.fft(IQ)/self.IQlen
       mag = np.fft.fftshift(mag)
       #mag = mag[range(N/2)]
@@ -150,9 +152,9 @@ class CWGen_Class:
       plt.show()
 
    def plotLine(self, trace1, trace2=[1]):
-      plt.plot(trace1)
+      plt.plot(trace1,"b")
       if len(trace2) > 1:
-         plt.plot(trace2)
+         plt.plot(trace2,"y")
       plt.xlabel('time,sec')
       plt.ylabel('magnitude')
       plt.title('plot')
@@ -163,7 +165,8 @@ class CWGen_Class:
       #######################################
       #### Plot Data
       #######################################
-      plt.plot(t, I_Ch, t, Q_Ch)
+      plt.plot(t, I_Ch, "b", t, Q_Ch, "y")
+      #plt.plot(t, I_Ch, "bo", t, Q_Ch, "yo")
       plt.xlabel('time,sec')
       plt.ylabel('magnitude')
       plt.title('plot')
@@ -175,6 +178,6 @@ class CWGen_Class:
 ### Run if Main
 #####################################################################
 if __name__ == "__main__":
-   asdf = CWGen_Class()    #Create object
-   #asdf.Gen2Tone()             #Call main
-   asdf.Gen_FM()
+   Wvform = CWGen_Class()    #Create object
+   #Wvform.Gen2Tone()             #Call main
+   Wvform.Gen_FM()
