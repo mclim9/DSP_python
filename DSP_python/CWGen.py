@@ -25,7 +25,7 @@ class CWGen_Class:
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 100;                 #Oversampling
       self.FC1 = 10.0e6;                  #Tone1,Hz
-      self.FC2 = 15.0e6;                   #Tone2,Hz
+      self.FC2 = 1.50e6;                   #Tone2,Hz
       self.NumPeriods = 60                #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
@@ -74,11 +74,15 @@ class CWGen_Class:
    def Gen_FM(self):
       ### Source:   https://gist.github.com/fedden/d06cd490fcceab83952619311556044a
       Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
+      StopTime = self.NumPeriods/self.FC1;         #Waveforms
+      dt = 1/Fs;                                   #seconds per sample
+      time = np.arange(0,StopTime,dt);                #create time array
+      
       modulator_freq = self.FC2
       carrier_freq = self.FC1
       modulation_index = 1.0
 
-      time = np.arange(44100.0) / 44100.0
+      #time = np.arange(NumPts) / NumPts
       modulator = np.sin(2.0 * np.pi * modulator_freq * time) * modulation_index
       carrier = np.sin(2.0 * np.pi * carrier_freq * time)
       I_product = np.zeros_like(modulator)
@@ -89,7 +93,8 @@ class CWGen_Class:
           Q_product[i] = np.sin(2. * np.pi * (carrier_freq * t + modulator[i]))
           
       self.WvWrite(Fs,I_product,Q_product)
-   
+      self.plotLine(I_product, Q_product)
+      
    def WvWrite(self,Fs, I_Ch, Q_Ch):
       fot = open("CreateWv.env", 'w')
       fot.write("#################################\n")
@@ -144,15 +149,17 @@ class CWGen_Class:
       plt.grid(True)
       plt.show()
 
-   def plotLine(arry):
-      plt.plot(arry)
+   def plotLine(self, trace1, trace2=[1]):
+      plt.plot(trace1)
+      if len(trace2) > 1:
+         plt.plot(trace2)
       plt.xlabel('time,sec')
       plt.ylabel('magnitude')
       plt.title('plot')
       plt.grid(True)
       plt.show()
 
-   def plotXY(t, I_Ch, Q_Ch):
+   def plotXY(self, t, I_Ch, Q_Ch):
       #######################################
       #### Plot Data
       #######################################
@@ -169,5 +176,5 @@ class CWGen_Class:
 #####################################################################
 if __name__ == "__main__":
    asdf = CWGen_Class()    #Create object
-   asdf.Gen2Tone()             #Call main
-   #asdf.Gen_FM()
+   #asdf.Gen2Tone()             #Call main
+   asdf.Gen_FM()
