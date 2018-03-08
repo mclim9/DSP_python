@@ -26,7 +26,7 @@ class CWGen_Class:
       self.OverSamp = 100;                 #Oversampling
       self.FC1 = 10.0e6;                  #Tone1,Hz
       self.FC2 = 1.50e6;                   #Tone2,Hz
-      self.NumPeriods = 60                #Number of Periods
+      self.NumPeriods = 10                #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
       self.IQpoints = 0;                  #Display points
@@ -60,6 +60,7 @@ class CWGen_Class:
       Q_Ch = Q1_Ch + Q2_Ch
       
       self.WvWrite(Fs,I_Ch,Q_Ch)
+      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
       print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
       print("CWGen: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
       print("CWGen: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
@@ -68,7 +69,6 @@ class CWGen_Class:
          self.GUI_Object.update()
       except:
          pass
-      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
 
    def Gen_FM(self):
       ### Source:   https://gist.github.com/fedden/d06cd490fcceab83952619311556044a
@@ -160,7 +160,7 @@ class CWGen_Class:
       plt.title('plot')
       plt.grid(True)
       plt.show()
-
+#
    def plotXY(self, t, I_Ch, Q_Ch):
       #######################################
       #### Plot Data
@@ -179,5 +179,5 @@ class CWGen_Class:
 #####################################################################
 if __name__ == "__main__":
    Wvform = CWGen_Class()    #Create object
-   #Wvform.Gen2Tone()             #Call main
+   Wvform.Gen2Tone()             #Call main
    Wvform.Gen_FM()
