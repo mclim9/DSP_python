@@ -9,7 +9,8 @@
 #### Date    : 2017.10.04
 ####
 #### 171004 MCL Created first version
-####
+#### 180305 MCL Add GenFM
+#### 180410 MCL Add GenFMCW
 #######################################
 #### User Input
 #######################################
@@ -25,8 +26,9 @@ class CWGen_Class:
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 100;                 #Oversampling
       self.FC1 = 10.0e6;                  #Tone1,Hz
-      self.FC2 = 1.50e6;                   #Tone2,Hz
-      self.NumPeriods = 10                #Number of Periods
+      self.FC2 = 1000e6;                   #Tone2,Hz
+      self.Fmod = 15e6;                    #Modulation Frequency,Hz
+      self.NumPeriods = 50                #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
       self.IQpoints = 0;                  #Display points
@@ -61,39 +63,69 @@ class CWGen_Class:
       
       self.WvWrite(Fs,I_Ch,Q_Ch)
       self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
-      print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
-      print("CWGen: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
-      print("CWGen: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
+      print("GenCW: %d Samples @ %.0fMHz FFT res:%fkHz"%(I_Ch.size,Fs/1e6, Fs/(I_Ch.size*1e3)))
+      print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
+      print("GenCW: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
       try:
          self.GUI_Element.insert(0,"CWGen")
          self.GUI_Object.update()
       except:
          pass
 
+   def FuncGenTri(self, length, amplitude):
+       section = length // 4
+       x = np.linspace(0, amplitude, section+1)
+       mx = -x
+       return np.r_[x, x[-2::-1], mx[1:], mx[-2:0:-1]]
+    
+   def Gen_Chirp(self):
+      ### Source:  https://en.wikipedia.org/wiki/Chirp
+      ### sine (phi + 2Pi (F0t + (k*t*t)/2)
+      ### k = (F1 - F0)/T                 F0:StartFreq F1:StopFreq T:Time to sweep from F0 to F1
+      Fs = 2e9;                                    #Sampling Frequency
+      StopTime = self.NumPeriods/self.FC1;         #Waveforms
+      time = np.arange(0,StopTime,1/Fs);           #create time array
+      print(time.size)
+
+      I_Ch = np.zeros_like(time)
+      Q_Ch = np.zeros_like(time)
+      
+      for i, t in enumerate(time):
+          I_Ch[i] = np.cos(2.0*np.pi*(self.FC1*t + ((self.FC2-self.FC1)/0.1)*t*t))
+          Q_Ch[i] = np.sin(2.0*np.pi*(self.FC1*t + ((self.FC2-self.FC1)/0.1)*t*t))
+
+      print("GenFM: %d Samples @ %.0fMHz FFTres:%fkHz"%(time.size,Fs/1e6, Fs/(time.size*1e3)))
+      print("GenFM: FC0:%.3fMHz F1:%.3fMHz tone sweep"%(self.FC1/1e6,self.FC2/1e6))
+      
+      self.WvWrite(Fs,I_Ch, Q_Ch)
+      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
+
    def Gen_FM(self):
-      ### Source:   https://gist.github.com/fedden/d06cd490fcceab83952619311556044a
+      ### Source: https://gist.github.com/fedden/d06cd490fcceab83952619311556044a
       Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
       StopTime = self.NumPeriods/self.FC1;         #Waveforms
       dt = 1/Fs;                                   #seconds per sample
-      time = np.arange(0,StopTime,dt);                #create time array
-      
-      modulator_freq = self.FC2
-      carrier_freq = self.FC1
-      modulation_index = 1.0
+      time = np.arange(0,StopTime,dt);             #create time array
+      #time = np.arange(NumPts) / NumPts      
+      modIndx = 3
 
-      #time = np.arange(NumPts) / NumPts
-      modulator = np.sin(2.0 * np.pi * modulator_freq * time) * modulation_index
-      carrier = np.sin(2.0 * np.pi * carrier_freq * time)
-      I_Ch = np.zeros_like(modulator)
-      Q_Ch = np.zeros_like(modulator)
-
+      rmp_arry = self.FuncGenTri(time.size,modIndx)
+      sin_arry = np.sin(2.0 * np.pi * self.Fmod * time) 
+      cos_arry = np.cos(2.0 * np.pi * self.Fmod * time) 
+      mod_arry = rmp_arry
+      I_Ch = np.zeros_like(mod_arry)
+      Q_Ch = np.zeros_like(mod_arry)
       for i, t in enumerate(time):
-          I_Ch[i] = np.cos(2. * np.pi * (carrier_freq * t + modulator[i]))
-          Q_Ch[i] = np.sin(2. * np.pi * (carrier_freq * t + modulator[i]))
-          
+          print t
+          ### sin(2(pi)fc+(beta)sin(2(pi)fm))
+          ### sin(2(pi)fc+(beta)modArry)
+          I_Ch[i] = np.cos(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
+          Q_Ch[i] = np.sin(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
+      print("GenFM: %d Samples @ %.0fMHz FFT res:%fkHz"%(time.size,Fs/1e6, Fs/(time.size*1e3)))
+      print("GenFM: FC:%.3fMHz Fmod:%.3fMHz tones generated"%(self.FC1/1e6,self.Fmod/1e6))
+
       self.WvWrite(Fs,I_Ch, Q_Ch)
-      #self.plotXY(time, I_Ch, Q_Ch)
-      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
+      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch, mod_arry)
       
    def WvWrite(self,Fs, I_Ch, Q_Ch):
       fot = open("CreateWv.env", 'w')
@@ -112,7 +144,7 @@ class CWGen_Class:
       #print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
 
    
-   def plot_IQ_FFT(self, Fs, I_Ch, Q_Ch):
+   def plot_IQ_FFT(self, Fs, I_Ch, Q_Ch, Plot3=[9999, 9999]):
       #######################################
       #### Calculate FFT
       #######################################
@@ -140,7 +172,9 @@ class CWGen_Class:
       plt.title("I:Blue Q:Yellow")
       plt.plot(I_Ch,"b",I_Ch,"b")
       plt.plot(Q_Ch,"y",Q_Ch,"y")
-      
+      if Plot3[0] != 9999:
+         plt.plot(Plot3,"g",Plot3,"g")
+         
       plt.subplot(2, 1, 2)       # Frequency Domain
       if self.IQpoints:
          plt.plot(frq, mag,'bo')
@@ -179,5 +213,6 @@ class CWGen_Class:
 #####################################################################
 if __name__ == "__main__":
    Wvform = CWGen_Class()    #Create object
-   Wvform.Gen2Tone()             #Call main
-   Wvform.Gen_FM()
+#   Wvform.Gen2Tone()             #Call main
+#   Wvform.Gen_FM()
+   Wvform.Gen_Chirp()
