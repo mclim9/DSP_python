@@ -98,12 +98,11 @@ class CWGen_Class:
       K = ((self.FC2-self.FC1)/(RampTime))         #Define FM sweep rate
       
       for i, t in enumerate(time):
-          I_Ch[i] = np.cos(2.0*np.pi*(self.FC1*t + K*t*t))
-          Q_Ch[i] = np.sin(2.0*np.pi*(self.FC1*t + K*t*t))
-          I_Dn[i] = np.cos(2.0*np.pi*(self.FC1*t - K*t*t))
-          Q_Dn[i] = np.sin(2.0*np.pi*(self.FC1*t - K*t*t))
-      
-      
+          I_Ch[i] = np.cos(2.0*np.pi*(-self.FC1*t + K*t*t))
+          Q_Ch[i] = np.sin(2.0*np.pi*(-self.FC1*t + K*t*t))
+          I_Dn[i] = np.cos(2.0*np.pi*(self.FC2*t - K*t*t))
+          Q_Dn[i] = np.sin(2.0*np.pi*(self.FC2*t - K*t*t))
+            
       if 1:  #Up and down sweep
          for i, t in enumerate(time):
              I_Ch[i] = np.cos(2.0*np.pi*(self.FC1*t + K*t*t))
@@ -116,8 +115,8 @@ class CWGen_Class:
          I_Ch = I_Ch[::-1]
          Q_Ch = Q_Ch[::-1]
          
-      print("GenFM: Samples:%d Fs:%.0fMHz %.3fmsec FFT_res:%.3fkHz"%(time.size,Fs/1e6,StopTime*1e3,Fs/(time.size*1e3)))
-      print("GenFM: %fsec ramp at %.0f MHz/Sec"%(StopTime,K/1e6))
+      print("GenFM: Samples:%d Fs:%.0fMHz %.3fmsec FFT_res:%.3fkHz"%(time.size,Fs/1e6,RampTime*1e3,Fs/(time.size*1e3)))
+      print("GenFM: %fsec ramp at %.0f MHz/Sec"%(RampTime,K/1e6))
       print("GenFM: FC0:%.3fMHz F1:%.3fMHz tone sweep"%(self.FC1/1e6,self.FC2/1e6))
       
       self.WvWrite(Fs,I_Ch, Q_Ch)
@@ -157,8 +156,9 @@ class CWGen_Class:
       fot.write("#################################\n")
       fot.write("### CWGen Waveform\n")
       fot.write("###    Oversampling: %d\n"%self.OverSamp)
-      fot.write("###    Tone1 Freq  : %.3f\n"%self.FC1)
-      fot.write("###    Tone2 Freq  : %.3f\n"%self.FC2)
+      fot.write("###    SamplingFreq: %.3fMHz\n"%Fs/1e6)
+      fot.write("###    Tone1 Freq  : %.3fMHz\n"%self.FC1/1e6)
+      fot.write("###    Tone2 Freq  : %.3fMHz\n"%self.FC2/1e6)
       fot.write("###    Cycles      : %d\n"%self.NumPeriods)
       fot.write("###\n")
       fot.write("#CWGen.py:%dx Oversampled %.0fHz & %.0fHz CW\n"%(self.OverSamp,self.FC1,self.FC2))
