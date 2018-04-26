@@ -25,13 +25,14 @@ class CWGen_Class:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 100;                 #Oversampling
-      self.FC1 = 10.0e6;                  #Tone1,Hz  
+      self.FC1 = -500.0e6;                  #Tone1,Hz  
       self.FC2 =500e6;                   #Tone2,Hz
       self.Fmod = 15e6;                    #Modulation Frequency,Hz
       self.NumPeriods = 1000                #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
       self.IQpoints = 0;                  #Display points
+
    def __str__(self):
       OutStr = 'maxAmpl    : %5.2f\n'%self.maxAmpl +\
                'OverSamp   : %5.2f\n'%self.OverSamp +\
@@ -86,27 +87,29 @@ class CWGen_Class:
       ###     F1:StopFreq 
       ###     T:Time to sweep from F0 to F1
       
-      Fs = 2e9;                                    #Sampling Frequency
-      #StopTime = self.NumPeriods/self.FC1;         #Waveforms
+      ##################################################################
+      ### User Input
+      ##################################################################
+      #self.FC1                                     #Start Frequency
+      #self.FC2                                     #Stop Frequency
+      Fs = 2.0e9;                                  #Sampling Frequency
       RampTime = 10e-6
-      time = np.arange(0,RampTime,1/Fs);           #Create time array
 
+      ### Code Start
+      time = np.arange(0,RampTime,1/Fs);           #Create time array
       I_Ch = [0.00] * time.size                    #Create empty array
       Q_Ch = [0.00] * time.size                    #Create empty array
       I_Dn = [0.00] * time.size                    #Create empty array
       Q_Dn = [0.00] * time.size                    #Create empty array
-      K = ((self.FC2-self.FC1)/(RampTime))         #Define FM sweep rate
+      K = ((self.FC2-self.FC1)/RampTime)           #Define FM sweep rate
       
       for i, t in enumerate(time):
-          I_Ch[i] = np.cos(2.0*np.pi*(-self.FC1*t + K*t*t))
-          Q_Ch[i] = np.sin(2.0*np.pi*(-self.FC1*t + K*t*t))
-          I_Dn[i] = np.cos(2.0*np.pi*(self.FC2*t - K*t*t))
-          Q_Dn[i] = np.sin(2.0*np.pi*(self.FC2*t - K*t*t))
+          I_Ch[i] = np.cos(2.0*np.pi*(self.FC1*t + K*t*t/2))
+          Q_Ch[i] = np.sin(2.0*np.pi*(self.FC1*t + K*t*t/2))
+          I_Dn[i] = np.cos(2.0*np.pi*(self.FC2*t - K*t*t/2))
+          Q_Dn[i] = np.sin(2.0*np.pi*(self.FC2*t - K*t*t/2))
             
       if 1:  #Up and down sweep
-         for i, t in enumerate(time):
-             I_Ch[i] = np.cos(2.0*np.pi*(self.FC1*t + K*t*t))
-             Q_Ch[i] = np.sin(2.0*np.pi*(self.FC1*t + K*t*t))
          I_Ch.extend(I_Dn)
          Q_Ch.extend(Q_Dn)
          print(len(I_Ch))
@@ -156,9 +159,9 @@ class CWGen_Class:
       fot.write("#################################\n")
       fot.write("### CWGen Waveform\n")
       fot.write("###    Oversampling: %d\n"%self.OverSamp)
-      fot.write("###    SamplingFreq: %.3fMHz\n"%Fs/1e6)
-      fot.write("###    Tone1 Freq  : %.3fMHz\n"%self.FC1/1e6)
-      fot.write("###    Tone2 Freq  : %.3fMHz\n"%self.FC2/1e6)
+      fot.write("###    SamplingFreq: %.3fMHz\n"%(Fs/1e6))
+      fot.write("###    Tone1 Freq  : %.3fMHz\n"%(self.FC1/1e6))
+      fot.write("###    Tone2 Freq  : %.3fMHz\n"%(self.FC2/1e6))
       fot.write("###    Cycles      : %d\n"%self.NumPeriods)
       fot.write("###\n")
       fot.write("#CWGen.py:%dx Oversampled %.0fHz & %.0fHz CW\n"%(self.OverSamp,self.FC1,self.FC2))
