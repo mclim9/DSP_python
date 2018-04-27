@@ -20,6 +20,7 @@
 #######################################
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 class CWGen_Class:
    def __init__(self):
@@ -61,11 +62,11 @@ class CWGen_Class:
       I_Ch = I1_Ch + I2_Ch
       Q_Ch = Q1_Ch + Q2_Ch
       
-      self.WvWrite(Fs,I_Ch,Q_Ch)
-      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
-      print("GenCW: %d Samples @ %.0fMHz FFT res:%fkHz"%(I_Ch.size,Fs/1e6, Fs/(I_Ch.size*1e3)))
       print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
       print("GenCW: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
+
+      self.WvWrite(Fs,I_Ch,Q_Ch)
+      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
       try:
          self.GUI_Element.insert(0,"CWGen")
          self.GUI_Object.update()
@@ -97,12 +98,15 @@ class CWGen_Class:
          fm2 = np.arange(+self.FC1/2,-self.FC1/2,self.FC1/(Points-1))        #freq vs time
          phase = 2.0 * np.pi / Fs * np.cumsum(fm2);   #freq vs time --> phase vs time
          I_Dn = 0.707 * np.cos(phase)                 #Gen I Data
-         Q_Dn = 0.707 * np.sin(phase)                 #
+         Q_Dn = 0.707 * np.sin(phase)                 #Gen Q Data
          I_Ch = np.concatenate((I_Ch,I_Dn))
          Q_Ch = np.concatenate((Q_Ch,Q_Dn))
          print(len(I_Ch))
 
-      self.WvWrite(Fs,I_Ch, Q_Ch, "FM_ChirpSum")
+      cmmnt = "%f to %fMHz sweep in %fsec"%(self.FC1/1e6,self.FC2/1e6,RampTime)
+      print("GenFM: " + commnt)
+      
+      self.WvWrite(Fs,I_Ch, Q_Ch, cmmnt)
 
    def Gen_FMChirp(self):
       ##################################################################
@@ -128,7 +132,6 @@ class CWGen_Class:
       Q_Dn = [0.00] * time.size                    #Create empty array
       K = ((self.FC2-self.FC1)/RampTime)           #Define FM sweep rate
       
-      print(type(I_Ch))
       for i, t in enumerate(time):
           I_Ch[i] = np.cos(2.0*np.pi*(self.FC1*t + K*t*t/2))
           Q_Ch[i] = np.sin(2.0*np.pi*(self.FC1*t + K*t*t/2))
@@ -137,18 +140,17 @@ class CWGen_Class:
             
       if 1:  #Up and down sweep
          I_Ch.extend(I_Dn)
-         Q_Ch.extend(Q_Dn)
-         print(len(I_Ch))
-      
+         Q_Ch.extend(Q_Dn) 
+
       if 0:  #Reverse Array
          I_Ch = I_Ch[::-1]
          Q_Ch = Q_Ch[::-1]
          
-      print("GenFM: Samples:%d Fs:%.0fMHz %.3fmsec FFT_res:%.3fkHz"%(time.size,Fs/1e6,RampTime*1e3,Fs/(time.size*1e3)))
+      commnt = "%.3f to %.3fMHz sweep in %.3fmsec"%(self.FC1/1e6,self.FC2/1e6,RampTime*1e3)
       print("GenFM: %fsec ramp at %.0f MHz/Sec"%(RampTime,K/1e6))
-      print("GenFM: FC0:%.3fMHz F1:%.3fMHz tone sweep"%(self.FC1/1e6,self.FC2/1e6))
+      print("GenFM: " + commnt)
       
-      self.WvWrite(Fs,I_Ch, Q_Ch, "FM_Chirp")
+      self.WvWrite(Fs,I_Ch, Q_Ch, commnt)
       #self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
       
    def Gen_FM(self):
@@ -167,18 +169,20 @@ class CWGen_Class:
       I_Ch = np.zeros_like(mod_arry)
       Q_Ch = np.zeros_like(mod_arry)
       for i, t in enumerate(time):
-          print t
+          print(t)
           ### sin(2(pi)fc+(beta)sin(2(pi)fm))
           ### sin(2(pi)fc+(beta)modArry)
           I_Ch[i] = np.cos(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
           Q_Ch[i] = np.sin(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
-      print("GenFM: %d Samples @ %.0fMHz FFT res:%fkHz"%(time.size,Fs/1e6, Fs/(time.size*1e3)))
       print("GenFM: FC:%.3fMHz Fmod:%.3fMHz tones generated"%(self.FC1/1e6,self.Fmod/1e6))
 
       self.WvWrite(Fs,I_Ch, Q_Ch)
       self.plot_IQ_FFT(Fs, I_Ch, Q_Ch, mod_arry)
       
    def WvWrite(self,Fs, I_Ch, Q_Ch, comment=""):
+      comment = sys._getframe().f_back.f_code.co_name + ":" + comment
+      print("WvWrt: %dSamples @ %.0fMHz FFTres:%.3fkHz"%(len(I_Ch),Fs/1e6, Fs/(len(I_Ch)*1e3)))
+      
       fot = open("CreateWv.env", 'w')
       fot.write("#############################################\n")
       fot.write("### CWGen Waveform\n")
@@ -188,7 +192,7 @@ class CWGen_Class:
       fot.write("###    Tone2 Freq  : %.3f MHz\n"%(self.FC2/1e6))
       fot.write("###\n")
       fot.write("#############################################\n")
-      fot.write("###%s\n"%(comment))
+      fot.write("#%s\n"%(comment))
       fot.write("%f\n"%Fs)
       for i in range(0,len(I_Ch)):
          fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
@@ -263,8 +267,10 @@ class CWGen_Class:
 ### Run if Main
 #####################################################################
 if __name__ == "__main__":
-   Wvform = CWGen_Class()    #Create object
-#   Wvform.Gen2Tone()             #Call main
+   #print(sys.version)
+   Wvform = CWGen_Class()           #Create object
+#   Wvform.Gen2Tone()               #Call main
 #   Wvform.Gen_FM()
-   Wvform.Gen_FMChirpSum()
+   Wvform.Gen_FMChirp()
+   
    execfile("CreateWv.py")
