@@ -24,11 +24,10 @@ import numpy as np
 class CWGen_Class:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
-      self.OverSamp = 100;                 #Oversampling
-      self.FC1 = -500.0e6;                  #Tone1,Hz  
-      self.FC2 =500e6;                   #Tone2,Hz
-      self.Fmod = 15e6;                    #Modulation Frequency,Hz
-      self.NumPeriods = 1000                #Number of Periods
+      self.OverSamp = 100;                #Oversampling
+      self.FC1 = -500.0e6;                #Tone1,Hz  
+      self.FC2 =500e6;                    #Tone2,Hz
+      self.NumPeriods = 1000              #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
       self.IQpoints = 0;                  #Display points
@@ -73,20 +72,46 @@ class CWGen_Class:
       except:
          pass
 
-   def FuncGenTri(self, length, amplitude):
-       section = length // 4
-       x = np.linspace(0, amplitude, section+1)
-       mx = -x
-       return np.r_[x, x[-2::-1], mx[1:], mx[-2:0:-1]]
-    
-   def Gen_Chirp(self):
+   def Gen_FMChirpSum(self):
+      ##################################################################
+      ### Source:  
+      ### 
+      ##################################################################
+      ### User Input
+      ##################################################################
+      #self.FC1                                       #Start Frequency
+      Fs = 2.0e9;                                     #Sampling Frequency
+      RampTime = 10e-6                                #Time from F1 to F2
+      
+      Points  = int(Fs * RampTime);                   #Num waveform points
+      #I_Ch = [0.00] * Points                          #Create empty array
+      #Q_Ch = [0.00] * Points                          #Create empty array
+      fm1 = np.arange(-self.FC1/2,+self.FC1/2,self.FC1/(Points-1))        #freq vs time
+      phase = 2.0 * np.pi / Fs * np.cumsum(fm1);      #freq vs time --> phase vs time
+
+      I_Ch = 0.707 * np.cos(phase);                   #Gen I Data
+      Q_Ch = 0.707 * np.sin(phase);                   #Gen Q Data
+
+      print("Points" + str(Points))
+      if 1:  #Up and down sweep
+         fm2 = np.arange(+self.FC1/2,-self.FC1/2,self.FC1/(Points-1))        #freq vs time
+         phase = 2.0 * np.pi / Fs * np.cumsum(fm2);   #freq vs time --> phase vs time
+         I_Dn = 0.707 * np.cos(phase)                 #Gen I Data
+         Q_Dn = 0.707 * np.sin(phase)                 #
+         I_Ch = np.concatenate((I_Ch,I_Dn))
+         Q_Ch = np.concatenate((Q_Ch,Q_Dn))
+         print(len(I_Ch))
+
+      self.WvWrite(Fs,I_Ch, Q_Ch, "FM_ChirpSum")
+
+   def Gen_FMChirp(self):
+      ##################################################################
       ### Source:  https://en.wikipedia.org/wiki/Chirp
       ### sine (phi + 2Pi (F0t + (k*t*t)/2)
       ### k = (F1 - F0)/T      
       ###     F0:StartFreq 
       ###     F1:StopFreq 
-      ###     T:Time to sweep from F0 to F1
-      
+      ###     T:Time to sweep from F0 to F1      
       ##################################################################
       ### User Input
       ##################################################################
@@ -103,6 +128,7 @@ class CWGen_Class:
       Q_Dn = [0.00] * time.size                    #Create empty array
       K = ((self.FC2-self.FC1)/RampTime)           #Define FM sweep rate
       
+      print(type(I_Ch))
       for i, t in enumerate(time):
           I_Ch[i] = np.cos(2.0*np.pi*(self.FC1*t + K*t*t/2))
           Q_Ch[i] = np.sin(2.0*np.pi*(self.FC1*t + K*t*t/2))
@@ -122,10 +148,8 @@ class CWGen_Class:
       print("GenFM: %fsec ramp at %.0f MHz/Sec"%(RampTime,K/1e6))
       print("GenFM: FC0:%.3fMHz F1:%.3fMHz tone sweep"%(self.FC1/1e6,self.FC2/1e6))
       
-      self.WvWrite(Fs,I_Ch, Q_Ch)
+      self.WvWrite(Fs,I_Ch, Q_Ch, "FM_Chirp")
       #self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
-      execfile("CreateWv.py")
-
       
    def Gen_FM(self):
       ### Source: https://gist.github.com/fedden/d06cd490fcceab83952619311556044a
@@ -154,23 +178,22 @@ class CWGen_Class:
       self.WvWrite(Fs,I_Ch, Q_Ch)
       self.plot_IQ_FFT(Fs, I_Ch, Q_Ch, mod_arry)
       
-   def WvWrite(self,Fs, I_Ch, Q_Ch):
+   def WvWrite(self,Fs, I_Ch, Q_Ch, comment=""):
       fot = open("CreateWv.env", 'w')
-      fot.write("#################################\n")
+      fot.write("#############################################\n")
       fot.write("### CWGen Waveform\n")
-      fot.write("###    Oversampling: %d\n"%self.OverSamp)
-      fot.write("###    SamplingFreq: %.3fMHz\n"%(Fs/1e6))
-      fot.write("###    Tone1 Freq  : %.3fMHz\n"%(self.FC1/1e6))
-      fot.write("###    Tone2 Freq  : %.3fMHz\n"%(self.FC2/1e6))
-      fot.write("###    Cycles      : %d\n"%self.NumPeriods)
+      fot.write("###    Waveform    : %d Samples @ %.3f MHz\n"%(len(I_Ch),Fs/1e6))
+      fot.write("###    Wave Length : %.6f mSec\n"%(len(I_Ch)/Fs*1000))      
+      fot.write("###    Tone1 Freq  : %.3f MHz\n"%(self.FC1/1e6))
+      fot.write("###    Tone2 Freq  : %.3f MHz\n"%(self.FC2/1e6))
       fot.write("###\n")
-      fot.write("#CWGen.py:%dx Oversampled %.0fHz & %.0fHz CW\n"%(self.OverSamp,self.FC1,self.FC2))
+      fot.write("#############################################\n")
+      fot.write("###%s\n"%(comment))
       fot.write("%f\n"%Fs)
       for i in range(0,len(I_Ch)):
          fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
       fot.close()
       #print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
-
    
    def plot_IQ_FFT(self, Fs, I_Ch, Q_Ch, Plot3=[9999, 9999]):
       #######################################
@@ -243,4 +266,5 @@ if __name__ == "__main__":
    Wvform = CWGen_Class()    #Create object
 #   Wvform.Gen2Tone()             #Call main
 #   Wvform.Gen_FM()
-   Wvform.Gen_Chirp()
+   Wvform.Gen_FMChirpSum()
+   execfile("CreateWv.py")
