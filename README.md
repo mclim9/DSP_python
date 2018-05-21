@@ -1,16 +1,17 @@
-# README #
-matplotlib (2.0.2)
-numpy (1.13.3)
-six (1.11.0)
+# Example code
+=======================================================================
+pyvisa (2.0.2)
 
 ### What is this repository for? ###
-DSP Experiments
+* DSP Experiments
 * Quick summary
 * Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* [Tutorial1:BitBucket](https://bitbucket.org/tutorials/markdowndemo)
+* [Tutorial2:PortntBlg](https://www.portent.com/blog/content-strategy/atom-markdown.htm)
+* [Tutorial3:Stackedit](https://stackedit.io/app#)
 
-### How do I get set up? ###
 
+### How do I get set up?
 * Summary of set up
 * Configuration
 * Dependencies
@@ -18,11 +19,10 @@ DSP Experiments
 * How to run tests
 * Deployment instructions
 
-### Contribution guidelines ###
-
+### Contribution guidelines
 * Writing tests
 * Code review
 * Other guidelines
 
-### Who do I talk to? ###
+### Who do I talk to?
 owner: Martin C Lim
