@@ -1,10 +1,7 @@
 ######################################################################
-#### Rohde & Schwarz Single tone generation
-######################################################################
 ####
-#### This program will test various baseband analysis input types.  
-####
-#### Modified by Martin C Lim
+#### Purpose : Rohde & Schwarz Single tone generation
+#### Author  :Martin C Lim
 #### Revision: V0.1
 #### Date    : 2017.10.04
 ####
