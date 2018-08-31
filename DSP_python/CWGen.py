@@ -23,9 +23,9 @@ class CWGen_Class:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 100;                #Oversampling
-      self.FC1 = -500.0e6;                #Tone1,Hz  
+      self.FC1 = 5.0e6;                #Tone1,Hz  
       self.FC2 =500e6;                    #Tone2,Hz
-      self.NumPeriods = 1000              #Number of Periods
+      self.NumPeriods = 10              #Number of Periods
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
       self.IQpoints = 0;                  #Display points
@@ -49,8 +49,7 @@ class CWGen_Class:
 
       Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
       StopTime = self.NumPeriods/self.FC1;         #Waveforms
-      dt = 1/Fs;                                   #seconds per sample
-      t = np.arange(0,StopTime,dt);                #create time array
+      #t = np.arange(0,StopTime,1/Fs);             #create time array
       t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False);   #Create time array
       I_Ch = 0.5 * np.cos(2*np.pi*self.FC1*t);
       Q_Ch = 0.5 * np.sin(2*np.pi*self.FC1*t);
@@ -203,6 +202,26 @@ class CWGen_Class:
       
       self.WvWrite(Fs,I_Ch, Q_Ch, cmmnt)
 
+   def Gen_PhaseMod(self):
+      angle = 87 
+      numpt = 100
+      Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
+      mod = np.concatenate([np.ones(numpt)*angle,np.zeros(numpt)])
+      I_Ch = 0.5 * np.cos(mod * np.pi / 180);
+      Q_Ch = 0.5 * np.sin(mod * np.pi / 180);
+      print(I_Ch)
+      
+      print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
+      print("GenCW: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
+
+      self.WvWrite(Fs,I_Ch,Q_Ch)
+      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
+      try:
+         self.GUI_Element.insert(0,"CWGen")
+         self.GUI_Object.update()
+      except:
+         pass
+
    def WvWrite(self,Fs, I_Ch, Q_Ch, comment=""):
       comment = sys._getframe().f_back.f_code.co_name + ":" + comment
       print("WvWrt: %dSamples @ %.0fMHz FFTres:%.3fkHz"%(len(I_Ch),Fs/1e6, Fs/(len(I_Ch)*1e3)))
@@ -260,7 +279,7 @@ class CWGen_Class:
       plt.plot(frq, mag)
       plt.xlabel('Freq')
       plt.ylabel('magnitude')
-#      plt.xlim(-3e6,3e6)
+      #plt.xlim(-3e6,3e6)
       plt.grid(True)
       plt.show()
 
@@ -291,13 +310,15 @@ class CWGen_Class:
 ### Run if Main
 #####################################################################
 if __name__ == "__main__":
-   #print(sys.version)
+   print(sys.version)
    Wvform = CWGen_Class()           #Create object
-#   Wvform.Gen2Tone()               #Call main
-#   Wvform.Gen_FM()
-   Wvform.Gen_FMChirp()
+   #Wvform.Gen1Tone()               #Two tones, FC1 FC2
+   #Wvform.Gen2Tone()               #Two tones, FC1 FC2
+   #Wvform.Gen_FM()                 #One tone: FC1
+   #Wvform.Gen_FMChirp()             #FM Chirp FC1-->FC2
+   Wvform.Gen_PhaseMod()
    
-   try:
+   try:      #Python 2.7
       execfile("CreateWv.py")
-   except:
-      exec(open("./CreateWv.py").read())
+   except:   #Python 3.7
+      exec(open("./CreateWv3.py").read())
