@@ -32,7 +32,7 @@ import math
 import pickle     #to save/load object
 import copy       #copy object
 from os.path import split
-from CWGen import CWGen_Class
+from IQGen import CWGen_Class
 CWVar = CWGen_Class()
 
 # *****************************************************************
@@ -83,13 +83,13 @@ def btn_PlotFFT():
    CWVar.OverSamp  = float(Entry5.get())
    CWVar.GUI_Element = lstOutpt     #Send GUI window handle
    CWVar.GUI_Object = GUI           #Send GUI handle
-   print type(lstOutpt)
+   print(type(lstOutpt))
    CWVar.main()
    fprintf("CWGen Plotted")
    
 def menu_Open():
    asdf = tkFileDialog.askopenfilename()
-   print asdf
+   print(asdf)
    
 def menu_Exit():
    global GUI
