@@ -256,10 +256,7 @@ class CWGen_Class:
 if __name__ == "__main__":
    print(sys.version)
    Wvform = CWGen_Class()           #Create object
-   #Wvform.Gen1Tone()               #Two tones, FC1 FC2
-   #Wvform.Gen2Tone()               #Two tones, FC1 FC2
    #Wvform.Gen_FM()                 #One tone: FC1
-   #Wvform.Gen_FMChirp()             #FM Chirp FC1-->FC2
    Wvform.Gen_PhaseMod()
    
    try:      #Python 2.7
