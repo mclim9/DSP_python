@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-class CWGen_Class:
+class IQGen:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 100;                #Oversampling
@@ -255,7 +255,7 @@ class CWGen_Class:
 #####################################################################
 if __name__ == "__main__":
    print(sys.version)
-   Wvform = CWGen_Class()           #Create object
+   Wvform = IQGen()           #Create object
    #Wvform.Gen_FM()                 #One tone: FC1
    Wvform.Gen_PhaseMod()
    

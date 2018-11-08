@@ -5,8 +5,6 @@
 #### Revision: V0.1
 #### Date    : 2017.10.04
 ####
-#### 171004 MCL Created first version
-#### 180305 MCL Add GenFM
 #### 180410 MCL Add GenFMCW
 #######################################
 #### User Input
@@ -19,13 +17,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-class CWGen_Class:
+class IQGen:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 100;                #Oversampling
-      self.FC1 = 5.0e6;                #Tone1,Hz  
-      self.FC2 =500e6;                    #Tone2,Hz
-      self.NumPeriods = 10              #Number of Periods
+      self.FC1 = 5.0e6;                   #StartFreq,Hz  
+      self.FC2 =500e6;                    #StopFreq,Hz
       self.fBeta = 0;                     #Filter Beta
       self.IQlen = 0;                     #IQ Length
       self.IQpoints = 0;                  #Display points
@@ -35,7 +32,6 @@ class CWGen_Class:
                'OverSamp   : %5.2f\n'%self.OverSamp +\
                'FC1        : %5.2f\n'%self.FC1 +\
                'FC2        : %5.2f\n'%self.FC2 +\
-               'NumPeriods : %5.2f\n'%self.NumPeriods +\
                'fBeta      : %5.2f\n'%self.fBeta 
       return OutStr
       
@@ -50,8 +46,8 @@ class CWGen_Class:
       ##################################################################
       ### User Input
       ##################################################################
-      #self.FC1                                     #Start Frequency
-      #self.FC2                                     #Stop Frequency
+      #self.FC1                                    #Start Frequency
+      #self.FC2                                    #Stop Frequency
       Fs = 2.0e9;                                  #Sampling Frequency
       RampTime = 10e-6
 
@@ -90,11 +86,11 @@ class CWGen_Class:
       
       fot = open("CreateWv.env", 'w')
       fot.write("#############################################\n")
-      fot.write("### CWGen Waveform\n")
+      fot.write("###  Waveform\n")
       fot.write("###    Waveform    : %d Samples @ %.3f MHz\n"%(len(I_Ch),Fs/1e6))
       fot.write("###    Wave Length : %.6f mSec\n"%(len(I_Ch)/Fs*1000))      
-      fot.write("###    Tone1 Freq  : %.3f MHz\n"%(self.FC1/1e6))
-      fot.write("###    Tone2 Freq  : %.3f MHz\n"%(self.FC2/1e6))
+      fot.write("###    Start Freq  : %.3f MHz\n"%(self.FC1/1e6))
+      fot.write("###    Stop  Freq  : %.3f MHz\n"%(self.FC2/1e6))
       fot.write("###\n")
       fot.write("#############################################\n")
       fot.write("#%s\n"%(comment))
@@ -102,6 +98,7 @@ class CWGen_Class:
       for i in range(0,len(I_Ch)):
          fot.write("%f,%f\n"%(I_Ch[i],Q_Ch[i]))
       fot.close()
+      print(Q_Ch)
       #print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(I_Ch),Fs/1e6, Fs/(self.IQlen*1e3)))
    
    def plot_IQ_FFT(self, Fs, I_Ch, Q_Ch, Plot3=[9999, 9999]):
@@ -113,7 +110,7 @@ class CWGen_Class:
       self.IQlen = len(I_Ch)
       
       if 0:    #Apply Filter
-         fltr = np.kaiser(N, self.fBeta)
+         fltr = np.kaiser(len(IQ), self.fBeta)
          IQ = np.multiply(IQ, fltr)
       mag = np.fft.fft(IQ)/self.IQlen
       mag = np.fft.fftshift(mag)
@@ -151,7 +148,7 @@ class CWGen_Class:
 #####################################################################
 if __name__ == "__main__":
    print(sys.version)
-   Wvform = CWGen_Class()           #Create object
+   Wvform = IQGen()                 #Create object
    Wvform.Gen_FMChirp()             #FM Chirp FC1-->FC2
    
    try:      #Python 2.7

@@ -19,14 +19,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-class CWGen_Class:
+class IQGen:
    def __init__(self):
       self.maxAmpl = 1.0;                 #clipping value
       self.OverSamp = 100;                #Oversampling
-      self.FC1 = 5.0e6;                   #Tone1,Hz  
-      self.FC2 =500e6;                    #Tone2,Hz
-      self.NumPeriods = 10                #Number of Periods
-      self.fBeta = 0;                     #Filter Beta
+      self.FC1 = 2e6;                     #Tone1,Hz  
+      self.FC2 =3e6;                      #Tone2,Hz
+      self.NumPeriods = 100               #Number of Periods
+      self.fBeta = 0.2;                   #Filter Beta
       self.IQlen = 0;                     #IQ Length
       self.IQpoints = 0;                  #Display points
 
@@ -66,13 +66,6 @@ class CWGen_Class:
          pass
 
    def Gen2Tone(self):
-      ### I:Cos Q:Sin  -Frq:Nul +Frq:Pos 1.000 Normal Case
-      ### I:Sin Q:Cos  -Frq:Neg +Frq:Nul 1.500
-      ### I:Cos Q:Zer  -Frq:Pos +Frq:Pos 0.500
-      ### I:Sin Q:Zer  -Frq:Neg +Frq:Neg 0.015
-      ### I:Zer Q:Sin  -Frq:Neg +Frq:Pos 0.500
-      ### I:Zer Q:Cos  -Frq:Neg +Frq:Pos 0.015
-
       Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
       StopTime = self.NumPeriods/self.FC1;         #Waveforms
       dt = 1/Fs;                                   #seconds per sample
@@ -125,7 +118,7 @@ class CWGen_Class:
       self.IQlen = len(I_Ch)
       
       if 0:    #Apply Filter
-         fltr = np.kaiser(N, self.fBeta)
+         fltr = np.kaiser(len(IQ), self.fBeta)
          IQ = np.multiply(IQ, fltr)
       mag = np.fft.fft(IQ)/self.IQlen
       mag = np.fft.fftshift(mag)
@@ -162,8 +155,8 @@ class CWGen_Class:
 #####################################################################
 if __name__ == "__main__":
    print(sys.version)
-   Wvform = CWGen_Class()           #Create object
-   Wvform.Gen2Tone()               #Two tones, FC1 FC2
+   Wvform = IQGen()           #Create object
+   Wvform.Gen2Tone()                #Two tones, FC1 FC2
 
    try:      #Python 2.7
       execfile("CreateWv.py")
