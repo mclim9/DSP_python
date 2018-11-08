@@ -39,62 +39,6 @@ class CWGen_Class:
                'fBeta      : %5.2f\n'%self.fBeta 
       return OutStr
 
-   def Gen1Tone(self):
-      ### I:Cos Q:Sin  -Frq:Nul +Frq:Pos 1.000 Normal Case
-      ### I:Sin Q:Cos  -Frq:Neg +Frq:Nul 1.500
-      ### I:Cos Q:Zer  -Frq:Pos +Frq:Pos 0.500
-      ### I:Sin Q:Zer  -Frq:Neg +Frq:Neg 0.015
-      ### I:Zer Q:Sin  -Frq:Neg +Frq:Pos 0.500
-      ### I:Zer Q:Cos  -Frq:Neg +Frq:Pos 0.015
-
-      Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
-      StopTime = self.NumPeriods/self.FC1;         #Waveforms
-      #t = np.arange(0,StopTime,1/Fs);             #create time array
-      t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False);   #Create time array
-      I_Ch = 0.5 * np.cos(2*np.pi*self.FC1*t);
-      Q_Ch = 0.5 * np.sin(2*np.pi*self.FC1*t);
-      
-      print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
-      print("GenCW: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
-
-      self.WvWrite(Fs,I_Ch,Q_Ch)
-      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
-      try:
-         self.GUI_Element.insert(0,"CWGen")
-         self.GUI_Object.update()
-      except:
-         pass
-
-   def Gen2Tone(self):
-      ### I:Cos Q:Sin  -Frq:Nul +Frq:Pos 1.000 Normal Case
-      ### I:Sin Q:Cos  -Frq:Neg +Frq:Nul 1.500
-      ### I:Cos Q:Zer  -Frq:Pos +Frq:Pos 0.500
-      ### I:Sin Q:Zer  -Frq:Neg +Frq:Neg 0.015
-      ### I:Zer Q:Sin  -Frq:Neg +Frq:Pos 0.500
-      ### I:Zer Q:Cos  -Frq:Neg +Frq:Pos 0.015
-
-      Fs = self.OverSamp*(self.FC1);               #Sampling Frequency
-      StopTime = self.NumPeriods/self.FC1;         #Waveforms
-      dt = 1/Fs;                                   #seconds per sample
-      t = np.arange(0,StopTime,dt);                #create time array
-      t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False);   #Create time array
-      I1_Ch = 0.5 * np.cos(2*np.pi*self.FC1*t);
-      Q1_Ch = 0.5 * np.sin(2*np.pi*self.FC1*t);
-      I2_Ch = 0.5 * np.cos(2*np.pi*self.FC2*t);
-      Q2_Ch = 0.5 * np.sin(2*np.pi*self.FC2*t);
-      I_Ch = I1_Ch + I2_Ch
-      Q_Ch = Q1_Ch + Q2_Ch
-      
-      print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
-      print("GenCW: %.2f %.2f Oversample"%(Fs/self.FC1,Fs/self.FC2))
-
-      self.WvWrite(Fs,I_Ch,Q_Ch)
-      self.plot_IQ_FFT(Fs, I_Ch, Q_Ch)
-      try:
-         self.GUI_Element.insert(0,"CWGen")
-         self.GUI_Object.update()
-      except:
-         pass
 
    def Gen_FM(self):
       ### Source: https://gist.github.com/fedden/d06cd490fcceab83952619311556044a
