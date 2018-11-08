@@ -19,12 +19,18 @@ ColorCurs = "White"
 # *****************************************************************
 # Code Start
 # *****************************************************************
-#from Tkinter import *
-import Tkinter
-import ttk
-import tkMessageBox
-import tkFileDialog
+try:     #Python2
+   import Tkinter
+   import ttk
+   import tkMessageBox
+   import tkFileDialog
+except:   #Python3
+   import tkinter             as Tkinter
+   from   tkinter             import ttk
+   import tkinter.messagebox  as tkMessageBox
+   import tkinter.filedialog  as tkFileDialog
 END = Tkinter.END
+
 
 #Code specific libraries
 import random
@@ -32,8 +38,8 @@ import math
 import pickle     #to save/load object
 import copy       #copy object
 from os.path import split
-from IQGen import CWGen_Class
-CWVar = CWGen_Class()
+from IQGen import IQGen
+CWVar = IQGen()
 
 # *****************************************************************
 # Functions
