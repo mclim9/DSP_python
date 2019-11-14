@@ -1,5 +1,4 @@
 ######################################################################
-####
 #### Purpose  : Rohde & Schwarz Single tone generation
 #### Author   : Martin C Lim
 #### Revision : V0.1
@@ -8,10 +7,7 @@
 #### 171004 MCL Created first version
 #### 180305 MCL Add GenFM
 #### 180410 MCL Add GenFMCW
-#######################################
-#### User Input
-#######################################
-
+#### 191113 MCL add Fs,IData,Qdata into object
 #######################################
 #### Code Begin
 #######################################
@@ -38,10 +34,10 @@ class IQGen:
     def __str__(self):
         OutStr = 'maxAmpl     : %5.2f\n'%self.maxAmpl +\
                 'OverSamp    : %5.2f\n'%self.OverSamp +\
-                'FC1          : %5.2f\n'%self.FC1 +\
-                'FC2          : %5.2f\n'%self.FC2 +\
-                'NumPeriods : %5.2f\n'%self.NumPeriods +\
-                'fBeta        : %5.2f\n'%self.fBeta 
+                'FC1         : %5.2f\n'%self.FC1 +\
+                'FC2         : %5.2f\n'%self.FC2 +\
+                'NumPeriods  : %5.2f\n'%self.NumPeriods +\
+                'fBeta       : %5.2f\n'%self.fBeta 
         return OutStr
 
     def Gen_FM(self):
@@ -146,7 +142,7 @@ class IQGen:
         cmmnt = "%f to %fMHz sweep in %fsec"%(self.FC1/1e6,self.FC2/1e6,RampTime)
         print("GenFM: " + cmmnt)
         
-        self.WvWrite(Fs,self.IData, self.QData, cmmnt)
+        self.WvWrite(cmmnt)
 
     def Gen_PhaseMod(self):
         angle = 87 
@@ -194,7 +190,7 @@ class IQGen:
         #######################################
         IQ = np.asarray(self.IData) + 1j*np.asarray(self.QData)
         self.IQlen = len(self.IData)
-        
+
         if 0:     #Apply Filter
             fltr = np.kaiser(N, self.fBeta)
             IQ = np.multiply(IQ, fltr)
@@ -209,7 +205,7 @@ class IQGen:
         #### Plot Data
         #######################################
         plt.clf()
-        plt.subplot(2, 1, 1)         #Time Domain
+        plt.subplot(2, 1, 1)         # Time Domain
         plt.title("I:Blue Q:Yellow")
         plt.plot(self.IData,"b",self.IData,"b")
         plt.plot(self.QData,"y",self.QData,"y")
@@ -222,7 +218,6 @@ class IQGen:
         plt.plot(frq, mag)
         plt.xlabel('Freq')
         plt.ylabel('magnitude')
-        #plt.xlim(-3e6,3e6)
         plt.grid(True)
         plt.show()
 
@@ -237,9 +232,7 @@ class IQGen:
         plt.show()
 #
     def plotXY(self, t):
-        #######################################
-        #### Plot Data
-        #######################################
+        """Plot IData vs QData"""
         plt.plot(t, self.IData, "b", t, self.QData, "y")
         #plt.plot(t, self.IData, "bo", t, self.QData, "yo")
         plt.xlabel('time,sec')

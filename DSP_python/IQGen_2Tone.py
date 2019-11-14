@@ -117,9 +117,9 @@ class IQGen:
         #### Calculate FFT
         #######################################
         #IQ = np.vectorize(complex)(self.IData,self.QData)
-        IQ = self.IData + 1j*self.QData
+        IQ = np.asarray(self.IData) + 1j*np.asarray(self.QData)
         self.IQlen = len(self.IData)
-        
+
         if 0:     #Apply Filter
             fltr = np.kaiser(len(IQ), self.fBeta)
             IQ = np.multiply(IQ, fltr)
