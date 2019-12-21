@@ -11,11 +11,12 @@
 #######################################
 #### Code Begin
 #######################################
+from IQGen_Common import Common
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-class IQGen:
+class IQGen(Common):
     def __init__(self):
         self.maxAmpl    = 1.0                               #clipping value
         self.OverSamp   = 100                               #Oversampling
@@ -55,7 +56,6 @@ class IQGen:
         self.IData = np.zeros_like(mod_arry)
         self.QData = np.zeros_like(mod_arry)
         for i, t in enumerate(time):
-             print(t)
              ### sin(2(pi)fc+(beta)sin(2(pi)fm))
              ### sin(2(pi)fc+(beta)modArry)
              self.IData[i] = np.cos(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
@@ -76,8 +76,6 @@ class IQGen:
         ##################################################################
         ### User Input
         ##################################################################
-        #self.FC1                                           #Start Frequency
-        #self.FC2                                           #Stop Frequency
         self.Fs = 2.0e9                                     #Sampling Frequency
         RampTime = 100e-6
 
@@ -164,83 +162,6 @@ class IQGen:
         except:
             pass
 
-    def WvWrite(self, comment=""):
-        comment = sys._getframe().f_back.f_code.co_name + ":" + comment
-        print("WvWrt: %dSamples @ %.0fMHz FFTres:%.3fkHz"%(len(self.IData),self.Fs/1e6,self.Fs/(len(self.IData)*1e3)))
-        
-        fot = open("CreateWv.env", 'w')
-        fot.write("#############################################\n")
-        fot.write("### CWGen Waveform\n")
-        fot.write("###     Waveform     : %d Samples @ %.3f MHz\n"%(len(self.IData),self.Fs/1e6))
-        fot.write("###     Wave Length : %.6f mSec\n"%(len(self.IData)/self.Fs*1000))        
-        fot.write("###     Tone1 Freq  : %.3f MHz\n"%(self.FC1/1e6))
-        fot.write("###     Tone2 Freq  : %.3f MHz\n"%(self.FC2/1e6))
-        fot.write("###\n")
-        fot.write("#############################################\n")
-        fot.write("#%s\n"%(comment))
-        fot.write("%f\n"%self.Fs)
-        for i in range(0,len(self.IData)):
-            fot.write("%f,%f\n"%(self.IData[i],self.QData[i]))
-        fot.close()
-        #print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(self.IData),Fs/1e6, Fs/(self.IQlen*1e3)))
-    
-    def plot_IQ_FFT(self, Plot3=[9999, 9999]):
-        #######################################
-        #### Calculate FFT
-        #######################################
-        IQ = np.asarray(self.IData) + 1j*np.asarray(self.QData)
-        self.IQlen = len(self.IData)
-
-        if 0:     #Apply Filter
-            fltr = np.kaiser(N, self.fBeta)
-            IQ = np.multiply(IQ, fltr)
-        mag = np.fft.fft(IQ)/self.IQlen
-        mag = np.fft.fftshift(mag)
-        #mag = mag[range(N/2)]
-
-        frq = np.fft.fftfreq(self.IQlen,d=1/(self.Fs))
-        frq = np.fft.fftshift(frq)
-
-        #######################################
-        #### Plot Data
-        #######################################
-        plt.clf()
-        plt.subplot(2, 1, 1)         # Time Domain
-        plt.title("I:Blue Q:Yellow")
-        plt.plot(self.IData,"b",self.IData,"b")
-        plt.plot(self.QData,"y",self.QData,"y")
-        if Plot3[0] != 9999:
-            plt.plot(Plot3,"g",Plot3,"g")
-            
-        plt.subplot(2, 1, 2)         # Frequency Domain
-        if self.IQpoints:
-            plt.plot(frq, mag,'bo')
-        plt.plot(frq, mag)
-        plt.xlabel('Freq')
-        plt.ylabel('magnitude')
-        plt.grid(True)
-        plt.show()
-
-    def plotLine(self, trace1, trace2=[1]):
-        plt.plot(trace1,"b")
-        if len(trace2) > 1:
-            plt.plot(trace2,"y")
-        plt.xlabel('time,sec')
-        plt.ylabel('magnitude')
-        plt.title('plot')
-        plt.grid(True)
-        plt.show()
-#
-    def plotXY(self, t):
-        """Plot IData vs QData"""
-        plt.plot(t, self.IData, "b", t, self.QData, "y")
-        #plt.plot(t, self.IData, "bo", t, self.QData, "yo")
-        plt.xlabel('time,sec')
-        plt.ylabel('magnitude')
-        plt.title('plot')
-        plt.grid(True)
-        #plt.savefig("test.png")
-        plt.show()
 
 #####################################################################
 ### Run if Main
@@ -250,10 +171,11 @@ if __name__ == "__main__":
     Wvform = IQGen()                                        #Create object
     Wvform.Gen_FM()                                        #One tone: FC1
     # Wvform.Gen_PhaseMod()
-    # Wvform.Gen_FMChirp()
-    Wvform.plot_IQ_FFT()
+    # Wvform.Gen_FMChirp()          # Verifiecd
+    # Wvform.plot_IQ_FFT()
+    Wvform.VSG_SCPI_Write()
 
-    try:        #Python 2.7
-        execfile("CreateWv.py")
-    except:    #Python 3.7
-        exec(open("./CreateWv3.py").read())
+    # try:        #Python 2.7
+    #     execfile("CreateWv.py")
+    # except:    #Python 3.7
+    #     exec(open("./CreateWv3.py").read())
