@@ -80,7 +80,7 @@ def btn_Test():
     pass
     
 def btn_Clear():
-    posi = lstOutpt.curselection()
+    # posi = lstOutpt.curselection()
     lstOutpt.delete(0,END)
 
 def btn_PlotFFT():
@@ -111,7 +111,7 @@ def menu_Exit():
     print("Program End")
 
 def menu_Save():
-    dataSave(RSVar)
+    dataSave(CWVar)
 
 def ArrayInput(stringIn):
     OutputList = []

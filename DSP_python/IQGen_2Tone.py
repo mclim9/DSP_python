@@ -1,42 +1,36 @@
 ######################################################################
-#### Purpose : Rohde & Schwarz Single tone generation
-#### Author  :Martin C Lim
-#### Revision: V0.1
+#### Author   : Martin C Lim
+#### Revision : V0.1
 #### Date     : 2017.10.04
-####
-#### 171004 MCL Created first version
-#### 180305 MCL Add GenFM
-#### 180410 MCL Add GenFMCW
 #######################################
 #### Code Begin
 #######################################
-from IQGen_Common        import Common
-import matplotlib.pyplot as plt
-import numpy             as np
 import sys
+import numpy             as np
+from IQGen_Common        import Common
 
 class IQGen(Common):
     def __init__(self):
+        super(IQGen,self).__init__()
+        # super().__init__('IQGen')
         self.maxAmpl    = 1.0                               #clipping value
         self.OverSamp   = 10                                #Oversampling
-        self.FC1        = 2e6                               #Tone1,Hz  
+        self.FC1        = 2e6                               #Tone1,Hz
         self.FC2        = 3e6                               #Tone2,Hz
         self.NumPeriods = 100                               #Number of Periods
         self.fBeta      = 0.2                               #Filter Beta
         self.IQpoints   = 0                                 #Display points
-
-        self.Fs         = 0                                 #Sampling Rate
-        self.IData      = []
-        self.QData      = []
-
+        # self.Fs         = 0                               #Sampling Rate
+        # self.IData      = []
+        # self.QData      = []
 
     def __str__(self):
         OutStr = 'maxAmpl     : %5.2f\n'%self.maxAmpl +\
-                    'OverSamp    : %5.2f\n'%self.OverSamp +\
-                    'FC1          : %5.2f\n'%self.FC1 +\
-                    'FC2          : %5.2f\n'%self.FC2 +\
-                    'NumPeriods : %5.2f\n'%self.NumPeriods +\
-                    'fBeta        : %5.2f\n'%self.fBeta 
+                'OverSamp     : %5.2f\n'%self.OverSamp +\
+                'FC1          : %5.2f\n'%self.FC1 +\
+                'FC2          : %5.2f\n'%self.FC2 +\
+                'NumPeriods   : %5.2f\n'%self.NumPeriods +\
+                'fBeta        : %5.2f\n'%self.fBeta
         return OutStr
 
     def Gen1Tone(self):
@@ -51,8 +45,8 @@ class IQGen(Common):
         StopTime = self.NumPeriods/self.FC1                 #Waveforms
         #t = np.arange(0,StopTime,1/self.Fs)                #create time array
         t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     #Create time array
-        self.IData = 0.5 * np.cos(2*np.pi*self.FC1*t) 
-        self.QData = 0.5 * np.sin(2*np.pi*self.FC1*t) 
+        self.IData = 0.5 * np.cos(2*np.pi*self.FC1*t)
+        self.QData = 0.5 * np.sin(2*np.pi*self.FC1*t)
 
         print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
         print("GenCW: %.2f %.2f Oversample"%(self.Fs/self.FC1,self.Fs/self.FC2))
@@ -63,10 +57,10 @@ class IQGen(Common):
         dt = 1/self.Fs                                      #seconds per sample
         t = np.arange(0,StopTime,dt)                        #create time array
         t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     #Create time array
-        I1_Ch = 0.5 * np.cos(2*np.pi*self.FC1*t) 
-        Q1_Ch = 0.5 * np.sin(2*np.pi*self.FC1*t) 
-        I2_Ch = 0.5 * np.cos(2*np.pi*self.FC2*t) 
-        Q2_Ch = 0.5 * np.sin(2*np.pi*self.FC2*t) 
+        I1_Ch = 0.5 * np.cos(2*np.pi*self.FC1*t)
+        Q1_Ch = 0.5 * np.sin(2*np.pi*self.FC1*t)
+        I2_Ch = 0.5 * np.cos(2*np.pi*self.FC2*t)
+        Q2_Ch = 0.5 * np.sin(2*np.pi*self.FC2*t)
         self.IData = I1_Ch + I2_Ch
         self.QData = Q1_Ch + Q2_Ch
 
@@ -77,16 +71,10 @@ class IQGen(Common):
 ### Run if Main
 #####################################################################
 if __name__ == "__main__":
-    from rssd.VSG.Common    import VSG
     print(sys.version)
     Wvform = IQGen()                                        #Create object
     Wvform.Gen2Tone()                                       #Two tones, FC1 FC2
-    Wvform.Gen1Tone()                                       #One tones, FC1
-    Wvform.VSG_SCPI_Write()
+    # Wvform.Gen1Tone()                                       #One tones, FC1
+    # Wvform.VSG_SCPI_Write()
     Wvform.plot_IQ_FFT()
     Wvform.WvWrite()
-
-    # try:        #Python 2.7
-    #     execfile("CreateWv.py")
-    # except:    #Python 3.7
-    #     exec(open("./CreateWv3.py").read())
