@@ -11,13 +11,13 @@
 #######################################
 #### Code Begin
 #######################################
-from IQGen_Common import Common
-import matplotlib.pyplot as plt
-import numpy as np
 import sys
+import numpy as np
+from IQGen_Common import Common
 
 class IQGen(Common):
     def __init__(self):
+        super(IQGen,self).__init__()
         self.maxAmpl    = 1.0                               #clipping value
         self.OverSamp   = 100                               #Oversampling
         self.FC1        = 5.0e6                             #Tone1,Hz
@@ -38,7 +38,7 @@ class IQGen(Common):
                 'FC1         : %5.2f\n'%self.FC1 +\
                 'FC2         : %5.2f\n'%self.FC2 +\
                 'NumPeriods  : %5.2f\n'%self.NumPeriods +\
-                'fBeta       : %5.2f\n'%self.fBeta 
+                'fBeta       : %5.2f\n'%self.fBeta
         return OutStr
 
     def Gen_FM(self):
@@ -50,16 +50,16 @@ class IQGen(Common):
         modIndx = 3
 
         # rmp_arry = self.FuncGenTri(time.size,modIndx)
-        sin_arry = np.sin(2.0 * np.pi * self.FMod * time) 
-        # cos_arry = np.cos(2.0 * np.pi * self.FMod * time) 
+        sin_arry = np.sin(2.0 * np.pi * self.FMod * time)
+        # cos_arry = np.cos(2.0 * np.pi * self.FMod * time)
         mod_arry = sin_arry
         self.IData = np.zeros_like(mod_arry)
         self.QData = np.zeros_like(mod_arry)
         for i, t in enumerate(time):
-             ### sin(2(pi)fc+(beta)sin(2(pi)fm))
-             ### sin(2(pi)fc+(beta)modArry)
-             self.IData[i] = np.cos(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
-             self.QData[i] = np.sin(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
+            ### sin(2(pi)fc+(beta)sin(2(pi)fm))
+            ### sin(2(pi)fc+(beta)modArry)
+            self.IData[i] = np.cos(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
+            self.QData[i] = np.sin(2.0*np.pi*self.FC1*t + modIndx*mod_arry[i])
         print("GenFM: FC:%.3fMHz FMod:%.3fMHz tones generated"%(self.FC1/1e6,self.FMod/1e6))
 
         self.WvWrite()
@@ -88,64 +88,58 @@ class IQGen(Common):
         K = ((self.FC2-self.FC1)/RampTime)                  #Define FM sweep rate
 
         for i, t in enumerate(time):
-             self.IData[i] = np.cos(2.0*np.pi*(self.FC1*t + K*t*t/2))
-             self.QData[i] = np.sin(2.0*np.pi*(self.FC1*t + K*t*t/2))
-             I_Dn[i]       = np.cos(2.0*np.pi*(self.FC2*t - K*t*t/2))
-             Q_Dn[i]       = np.sin(2.0*np.pi*(self.FC2*t - K*t*t/2))
+            self.IData[i] = np.cos(2.0*np.pi*(self.FC1*t + K*t*t/2))
+            self.QData[i] = np.sin(2.0*np.pi*(self.FC1*t + K*t*t/2))
+            I_Dn[i]       = np.cos(2.0*np.pi*(self.FC2*t - K*t*t/2))
+            Q_Dn[i]       = np.sin(2.0*np.pi*(self.FC2*t - K*t*t/2))
 
-        if 1:  #Up and down sweep
-            self.IData.extend(I_Dn)
-            self.QData.extend(Q_Dn) 
+        self.IData.extend(I_Dn)                             # Sweep I Down
+        self.QData.extend(Q_Dn)                             # Sweep Q Down
+        # self.IData = self.IData[::-1]                     # Reverse I
+        # self.QData = self.QData[::-1]                     # Reverse Q
 
-        if 0:  #Reverse Array
-            self.IData = self.IData[::-1]
-            self.QData = self.QData[::-1]
-            
         commnt = "%.3f to %.3fMHz sweep in %.3fmsec"%(self.FC1/1e6,self.FC2/1e6,RampTime*1e3)
         print("GenFM: %fsec ramp at %.0f MHz/Sec"%(RampTime,K/1e6))
         print("GenFM: " + commnt)
-        
+
         self.WvWrite(commnt)
 
     def Gen_FMChirpSum(self):
         ##################################################################
         ### Source:  ???
-        ### 
         ##################################################################
         ### User Input
         ##################################################################
-        #self.FC1                                           #Start Frequency
-        Fs = 2.0e9                                          #Sampling Frequency
-        RampTime = 10e-6                                    #Time from F1 to F2
-        
-        Points  = int(Fs * RampTime)                        #Num waveform points
-        #self.IData = [0.00] * Points                             #Create empty array
-        #self.QData = [0.00] * Points                             #Create empty array
+        #self.FC1                                                   #Start Frequency
+        Fs = 2.0e9                                                  #Sampling Frequency
+        RampTime = 10e-6                                            #Time from F1 to F2
+        Points  = int(Fs * RampTime)                                #Num waveform points
+        #self.IData = [0.00] * Points                               #Create empty array
+        #self.QData = [0.00] * Points                               #Create empty array
         fm1 = np.arange(-self.FC1/2,+self.FC1/2,self.FC1/(Points-1))          #freq vs time
-        phase = 2.0 * np.pi / Fs * np.cumsum(fm1)           #freq vs time --> phase vs time
+        phase = 2.0 * np.pi / Fs * np.cumsum(fm1)                   #freq vs time --> phase vs time
 
-        self.IData = 0.707 * np.cos(phase)                        #Gen I Data
-        self.QData = 0.707 * np.sin(phase)                        #Gen Q Data
+        self.IData = 0.707 * np.cos(phase)                          #Gen I Data
+        self.QData = 0.707 * np.sin(phase)                          #Gen Q Data
 
         print("Points" + str(Points))
         if 1:  #Up and down sweep
             fm2 = np.arange(+self.FC1/2,-self.FC1/2,self.FC1/(Points-1))          #freq vs time
-            phase = 2.0 * np.pi / Fs * np.cumsum(fm2)       #freq vs time --> phase vs time
-            I_Dn = 0.707 * np.cos(phase)                    #Gen I Data
-            Q_Dn = 0.707 * np.sin(phase)                    #Gen Q Data
+            phase = 2.0 * np.pi / Fs * np.cumsum(fm2)               #freq vs time --> phase vs time
+            I_Dn = 0.707 * np.cos(phase)                            #Gen I Data
+            Q_Dn = 0.707 * np.sin(phase)                            #Gen Q Data
             self.IData = np.concatenate((self.IData,I_Dn))
             self.QData = np.concatenate((self.QData,Q_Dn))
             print(len(self.IData))
 
         cmmnt = "%f to %fMHz sweep in %fsec"%(self.FC1/1e6,self.FC2/1e6,RampTime)
         print("GenFM: " + cmmnt)
-        
         self.WvWrite(cmmnt)
 
     def Gen_PhaseMod(self):
-        angle = 87 
+        angle = 87
         numpt = 100
-        self.Fs = self.OverSamp*(self.FC1)                  #Sampling Frequency
+        self.Fs = self.OverSamp*(self.FC1)                          #Sampling Frequency
         mod = np.concatenate([np.ones(numpt)*angle,np.zeros(numpt)])
         self.IData = 0.5 * np.cos(mod * np.pi / 180)
         self.QData = 0.5 * np.sin(mod * np.pi / 180)
