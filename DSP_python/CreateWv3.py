@@ -1,7 +1,6 @@
 ###############################################################################
-# Title: R&S Waveform creation
-#
-# Reference: AppNote 1GP62 Sec4 pg 15
+# Title     : R&S Waveform creation
+# Reference : AppNote 1GP62 Sec4 pg 15
 # Input file:
 #     Header
 #        Comment line begins with "#"
