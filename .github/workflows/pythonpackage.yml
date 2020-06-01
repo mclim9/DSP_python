@@ -25,7 +25,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt install -y xvfb x11-utils libxkbcommon-x11-0
         python -m pip install --upgrade pip wheel pylint
         pip install -r requirements.txt
 
@@ -33,11 +32,7 @@ jobs:
       run: |
         python -m pylint guiblox
 
-    - name: Test with pytest
-      run: |
-        pip install pytest
-        pip install coverage
-        # sudo systemctl start xvfb
-        # cd test
-        # xvfb-run `which coverage` run -m pytest
-        xvfb-run `which coverage` run -m unittest -v test.test_guiblox_import
+    # - name: Test with pytest
+    #   run: |
+    #     pip install pytest
+    #     pip install coverage
