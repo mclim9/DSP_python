@@ -22,23 +22,23 @@ ColorCurs = "White"
 try:      #Python2
     import Tkinter
     import ttk
-    import tkMessageBox
+    # import tkMessageBox
     import tkFileDialog
 except:    #Python3
     import tkinter                 as Tkinter
-    from    tkinter                 import ttk
-    import tkinter.messagebox  as tkMessageBox
+    from   tkinter                 import ttk
+    # import tkinter.messagebox  as tkMessageBox
     import tkinter.filedialog  as tkFileDialog
 END = Tkinter.END
 
 
 #Code specific libraries
-import random
-import math
-import pickle      #to save/load object
+# import random
+# import math
+import pickle       #to save/load object
 import copy         #copy object
-from os.path        import split
-from IQGen_2Tone  import IQGen
+# from os.path        import split
+from IQGen_2Tone    import IQGen
 CWVar = IQGen()
 
 # *****************************************************************
@@ -46,7 +46,7 @@ CWVar = IQGen()
 # *****************************************************************
 def btn_Button():
     pass
-    
+
 def btn_Waveforms():
     lstWaveF.delete(0,END)
     filez = tkFileDialog.askopenfilenames()
@@ -54,20 +54,18 @@ def btn_Waveforms():
     for i in fileList:
         lstWaveF.insert(END,i)
     lstWaveF.see(END)
- 
+
 def btn_WaveCreate():
     try:          #Python 2.7
         execfile("CreateWv.py")
     except:     #Python 3.7
-        exec(open("./CreateWv3.py").read())
-
+        exec(open("./CreateWv3.py").read())                         #pylint: disable=W0122
     fprintf("Waveform File created")
-    
-    
+
 def btn_SaveCond():
     try:
-        del CWVar.GUI_Element 
-        del CWVar.GUI_Object 
+        del CWVar.GUI_Element
+        del CWVar.GUI_Object
     except:
         pass
     CWVar.FC1       = float(Entry1.get())
@@ -75,10 +73,10 @@ def btn_SaveCond():
     CWVar.NumPeriods = float(Entry3.get())
     CWVar.fBeta     = float(Entry4.get())
     dataSave(CWVar)
-    
+
 def btn_Test():
     pass
-    
+
 def btn_Clear():
     # posi = lstOutpt.curselection()
     lstOutpt.delete(0,END)
@@ -86,7 +84,7 @@ def btn_Clear():
 def btn_PlotFFT():
     fprintf("CWGen: Run Tests")
     btn_SaveCond()
-    CWVar = IQGen()
+    CWVar = IQGen()                                         #pylint: disable=W0621
     CWVar.FC1           = float(Entry1.get())
     CWVar.FC2           = float(Entry2.get())
     CWVar.NumPeriods    = float(Entry3.get())
@@ -98,13 +96,13 @@ def btn_PlotFFT():
     CWVar.Gen2Tone()
     CWVar.plot_IQ_FFT()
     fprintf("CWGen Plotted")
-    
+
 def menu_Open():
     asdf = tkFileDialog.askopenfilename()
     print(asdf)
-    
+
 def menu_Exit():
-    global GUI
+    global GUI                                              #pylint: disable=W0603
     btn_SaveCond()
     GUI.quit()
     GUI.destroy()
@@ -120,7 +118,7 @@ def ArrayInput(stringIn):
         i = i.strip()
         OutputList.append(i)
     return OutputList
-    
+
 def fprintf(inStr):
     #print(inStr)
     try:
@@ -146,7 +144,7 @@ def dataLoad():
         data = copy.copy(CWVar)
         fprintf("DataLoad: Default")
     return data
-                      
+
 # *****************************************************************
 # Define GUI Widgets
 # *****************************************************************
@@ -180,8 +178,6 @@ srlOutpt = ttk.Scrollbar(GUI, orient=Tkinter.VERTICAL, command=lstOutpt.yview) #
 lstOutpt.config(yscrollcommand=srlOutpt.set)                #Link lstOutpt change to S
 lstWaveF = Tkinter.Listbox(GUI,bg=ColorBG, fg=ColorFG,width=80)
 srlWaveF = ttk.Scrollbar(GUI, orient=Tkinter.VERTICAL, command=lstWaveF.yview) #Create scrollbar S
-#for item in RSVar.WvArry:
-#     lstWaveF.insert(END, item)
 
 lstWaveF.config(yscrollcommand=srlWaveF.set)                #Link lstWaveF change to S
 lstFrequ = Tkinter.Listbox(GUI,bg=ColorBG, fg=ColorFG)
@@ -207,11 +203,9 @@ btnRunIt.grid(row=btnRow,column=4)
 btnQuit.grid(row=btnRow,column=5)
 
 lstWaveF.grid(row=0,column=2,columnspan=4,rowspan=5)
-srlWaveF.grid(column=6,row=0,rowspan=5,sticky=(Tkinter.W,Tkinter.N,Tkinter.S))      
-#lstFrequ.grid(row=0,column=4,rowspan=5)
-#lstPower.grid(row=0,column=5,rowspan=5)
+srlWaveF.grid(column=6,row=0,rowspan=5,sticky=(Tkinter.W,Tkinter.N,Tkinter.S))
 lstOutpt.grid(row=btnRow-1,column=0,columnspan=maxCol)
-srlOutpt.grid(column=maxCol,row=btnRow-1, sticky=(Tkinter.W,Tkinter.N,Tkinter.S))      
+srlOutpt.grid(column=maxCol,row=btnRow-1, sticky=(Tkinter.W,Tkinter.N,Tkinter.S))
 
 # *****************************************************************
 # Define menu
@@ -231,7 +225,7 @@ editMenu.add_command(label="Edit",command=menu_Open)
 menu.add_cascade(label="File",menu=fileMenu)     #add dropdown menu
 menu.add_cascade(label="Edit",menu=editMenu)     #add dropdown menu
 
-# *****************************************************************
+#*****************************************************************
 # Start Program
 # *****************************************************************
 GUI.mainloop()         #Display window

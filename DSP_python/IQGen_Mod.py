@@ -8,12 +8,12 @@
 #### 180305 MCL Add GenFM
 #### 180410 MCL Add GenFMCW
 #### 191113 MCL add Fs,IData,Qdata into object
-#######################################
+######################################################################
 #### Code Begin
-#######################################
+######################################################################
 import sys
 import numpy as np
-from IQGen_Common import Common
+from IQGen_Common import Common                             #pylint: disable=E0401
 
 class IQGen(Common):
     def __init__(self):
@@ -112,19 +112,19 @@ class IQGen(Common):
         ##################################################################
         #self.FC1                                                   #Start Frequency
         Fs = 2.0e9                                                  #Sampling Frequency
-        RampTime = 10e-6                                            #Time from F1 to F2
+        RampTime = 1000e-6                                          #Time from F1 to F2
         Points  = int(Fs * RampTime)                                #Num waveform points
+        PhStep  = self.FC1/(Points-1)
         #self.IData = [0.00] * Points                               #Create empty array
         #self.QData = [0.00] * Points                               #Create empty array
-        fm1 = np.arange(-self.FC1/2,+self.FC1/2,self.FC1/(Points-1))          #freq vs time
+        fm1 = np.arange(-self.FC1/2,+self.FC1/2,PhStep)             #freq vs time
         phase = 2.0 * np.pi / Fs * np.cumsum(fm1)                   #freq vs time --> phase vs time
-
         self.IData = 0.707 * np.cos(phase)                          #Gen I Data
         self.QData = 0.707 * np.sin(phase)                          #Gen Q Data
 
         print("Points" + str(Points))
         if 1:  #Up and down sweep
-            fm2 = np.arange(+self.FC1/2,-self.FC1/2,self.FC1/(Points-1))          #freq vs time
+            fm2 = np.arange(+self.FC1/2,-self.FC1/2,PhStep)         #freq vs time
             phase = 2.0 * np.pi / Fs * np.cumsum(fm2)               #freq vs time --> phase vs time
             I_Dn = 0.707 * np.cos(phase)                            #Gen I Data
             Q_Dn = 0.707 * np.sin(phase)                            #Gen Q Data
@@ -132,7 +132,7 @@ class IQGen(Common):
             self.QData = np.concatenate((self.QData,Q_Dn))
             print(len(self.IData))
 
-        cmmnt = "%f to %fMHz sweep in %fsec"%(self.FC1/1e6,self.FC2/1e6,RampTime)
+        cmmnt = f"{self.FC1/1e6} to {self.FC2/1e6}MHz sweep in {RampTime}sec"
         print("GenFM: " + cmmnt)
         self.WvWrite(cmmnt)
 
@@ -157,17 +157,16 @@ class IQGen(Common):
             pass
 
 
-#####################################################################
+######################################################################
 ### Run if Main
-#####################################################################
+######################################################################
 if __name__ == "__main__":
     print(sys.version)
     Wvform = IQGen()                                        #Create object
-    Wvform.Gen_FM()                                        #One tone: FC1
-    # Wvform.Gen_PhaseMod()
-    # Wvform.Gen_FMChirp()          # Verifiecd
-    # Wvform.plot_IQ_FFT()
-    Wvform.VSG_SCPI_Write()
+    # Wvform.Gen_FM()                                       #
+    # Wvform.Gen_PhaseMod()                                 #FM Chirp
+    Wvform.Gen_FMChirp()                                    #Verifiecd
+    Wvform.plot_IQ_FFT()
 
     # try:        #Python 2.7
     #     execfile("CreateWv.py")

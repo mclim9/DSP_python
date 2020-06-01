@@ -2,17 +2,16 @@
 #### Author   : Martin C Lim
 #### Revision : V0.1
 #### Date     : 2017.10.04
-#######################################
+######################################################################
 #### Code Begin
-#######################################
+######################################################################
 import sys
 import numpy             as np
-from IQGen_Common        import Common
+from IQGen_Common        import Common                      #pylint: disable=E0401
 
 class IQGen(Common):
     def __init__(self):
         super(IQGen,self).__init__()
-        # super().__init__('IQGen')
         self.maxAmpl    = 1.0                               #clipping value
         self.OverSamp   = 10                                #Oversampling
         self.FC1        = 2e6                               #Tone1,Hz
@@ -20,9 +19,9 @@ class IQGen(Common):
         self.NumPeriods = 100                               #Number of Periods
         self.fBeta      = 0.2                               #Filter Beta
         self.IQpoints   = 0                                 #Display points
-        # self.Fs         = 0                               #Sampling Rate
-        # self.IData      = []
-        # self.QData      = []
+        self.Fs         = 0                                 #Sampling Rate
+        self.IData      = []
+        self.QData      = []
 
     def __str__(self):
         OutStr = 'maxAmpl     : %5.2f\n'%self.maxAmpl +\
@@ -67,9 +66,9 @@ class IQGen(Common):
         print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
         print("GenCW: %.2f %.2f Oversample"%(self.Fs/self.FC1,self.Fs/self.FC2))
 
-#####################################################################
+######################################################################
 ### Run if Main
-#####################################################################
+######################################################################
 if __name__ == "__main__":
     print(sys.version)
     Wvform = IQGen()                                        #Create object
