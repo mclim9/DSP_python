@@ -123,14 +123,14 @@ class IQGen(Common):
         self.QData = 0.707 * np.sin(phase)                          #Gen Q Data
 
         print("Points" + str(Points))
-        if 1:  #Up and down sweep
-            fm2 = np.arange(+self.FC1/2,-self.FC1/2,PhStep)         #freq vs time
-            phase = 2.0 * np.pi / Fs * np.cumsum(fm2)               #freq vs time --> phase vs time
-            I_Dn = 0.707 * np.cos(phase)                            #Gen I Data
-            Q_Dn = 0.707 * np.sin(phase)                            #Gen Q Data
-            self.IData = np.concatenate((self.IData,I_Dn))
-            self.QData = np.concatenate((self.QData,Q_Dn))
-            print(len(self.IData))
+        # if 1:  #Up and down sweep
+        #     fm2 = np.arange(+self.FC1/2,-self.FC1/2,PhStep)         #freq vs time
+        #     phase = 2.0 * np.pi / Fs * np.cumsum(fm2)               #freq vs time --> phase vs time
+        #     I_Dn = 0.707 * np.cos(phase)                            #Gen I Data
+        #     Q_Dn = 0.707 * np.sin(phase)                            #Gen Q Data
+        #     self.IData = np.concatenate((self.IData,I_Dn))
+        #     self.QData = np.concatenate((self.QData,Q_Dn))
+        #     print(len(self.IData))
 
         cmmnt = f"{self.FC1/1e6} to {self.FC2/1e6}MHz sweep in {RampTime}sec"
         print("GenFM: " + cmmnt)

@@ -38,7 +38,7 @@ END = Tkinter.END
 import pickle       #to save/load object
 import copy         #copy object
 # from os.path        import split
-from IQGen_2Tone    import IQGen
+from IQGen_2Tone    import IQGen                                    #pylint: disable=E0401
 CWVar = IQGen()
 
 # *****************************************************************
@@ -57,7 +57,7 @@ def btn_Waveforms():
 
 def btn_WaveCreate():
     try:          #Python 2.7
-        execfile("CreateWv.py")
+        execfile("CreateWv.py")                                     #pylint: disable=E0602
     except:     #Python 3.7
         exec(open("./CreateWv3.py").read())                         #pylint: disable=W0122
     fprintf("Waveform File created")

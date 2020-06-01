@@ -103,7 +103,7 @@ class Common:
         ###               Each I (or Q) value is two bytes
         ###               I(2 bytes) + Q(2bytes) = 4 bytes/IQ pair
         ###               NumBytes = NumIQPair * 4
-        from rssd.VSG.Common    import VSG                                  #pylint: disable=C0415
+        from rssd.VSG.Common    import VSG                                  #pylint: disable=C0415,E0401
         SMW = VSG().jav_Open('192.168.1.114')                               #Create SMW Object
 
         ### ASCII
