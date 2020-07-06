@@ -12,11 +12,11 @@ from IQGen_Common        import Common                      #pylint: disable=E04
 class IQGen(Common):
     def __init__(self):
         super(IQGen,self).__init__()
-        self.maxAmpl    = 1.0                               #clipping value
-        self.OverSamp   = 10                                #Oversampling
-        self.FC1        = 2e6                               #Tone1,Hz
+        self.maxAmpl    = 1                               #clipping value
+        self.OverSamp   = 30                                #Oversampling
+        self.FC1        = 1e6                               #Tone1,Hz
         self.FC2        = 3e6                               #Tone2,Hz
-        self.NumPeriods = 100                               #Number of Periods
+        self.NumPeriods = 10                               #Number of Periods
         self.fBeta      = 0.2                               #Filter Beta
         self.IQpoints   = 0                                 #Display points
         self.Fs         = 0                                 #Sampling Rate
@@ -44,11 +44,26 @@ class IQGen(Common):
         StopTime = self.NumPeriods/self.FC1                 #Waveforms
         #t = np.arange(0,StopTime,1/self.Fs)                #create time array
         t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     #Create time array
-        self.IData = 0.5 * np.cos(2*np.pi*self.FC1*t)
-        self.QData = 0.5 * np.sin(2*np.pi*self.FC1*t)
+        # self.IData = 0.7071 * np.cos(2*np.pi*self.FC1*t)
+        # self.QData = 0.7071 * np.sin(2*np.pi*self.FC1*t)
+        self.IData = np.cos(2*np.pi*self.FC1*t)
+        self.QData = np.sin(2*np.pi*self.FC1*t)
 
-        print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
-        print("GenCW: %.2f %.2f Oversample"%(self.Fs/self.FC1,self.Fs/self.FC2))
+        ### Clipping
+        maxA = self.maxAmpl
+        for i,currVal in enumerate(self.IData):
+            if currVal > self.maxAmpl:
+                self.IData[i] = maxA
+            if currVal < -self.maxAmpl:
+                self.IData[i] = -maxA
+        for i,currVal in enumerate(self.QData):
+            if currVal > self.maxAmpl:
+                self.QData[i] = maxA
+            if currVal < -self.maxAmpl:
+                self.QData[i] = -maxA
+
+        print(f"GenCW: {self.FC1/1e6:.3f}MHz tone RBW:{self.FC1/self.NumPeriods/1e3:.3f}kHz")
+        print(f"GenCW: {self.Fs/self.FC1:.2f} Oversample")
 
     def Gen2Tone(self):
         self.Fs = self.OverSamp*(self.FC1)                  #Sampling Frequency
@@ -56,10 +71,10 @@ class IQGen(Common):
         dt = 1/self.Fs                                      #seconds per sample
         t = np.arange(0,StopTime,dt)                        #create time array
         t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     #Create time array
-        I1_Ch = 0.5 * np.cos(2*np.pi*self.FC1*t)
-        Q1_Ch = 0.5 * np.sin(2*np.pi*self.FC1*t)
-        I2_Ch = 0.5 * np.cos(2*np.pi*self.FC2*t)
-        Q2_Ch = 0.5 * np.sin(2*np.pi*self.FC2*t)
+        I1_Ch = 0.7071 * np.cos(2*np.pi*self.FC1*t)
+        Q1_Ch = 0.7071 * np.sin(2*np.pi*self.FC1*t)
+        I2_Ch = 0.7071 * np.cos(2*np.pi*self.FC2*t)
+        Q2_Ch = 0.7071 * np.sin(2*np.pi*self.FC2*t)
         self.IData = I1_Ch + I2_Ch
         self.QData = Q1_Ch + Q2_Ch
 
@@ -72,8 +87,13 @@ class IQGen(Common):
 if __name__ == "__main__":
     print(sys.version)
     Wvform = IQGen()                                        #Create object
-    Wvform.Gen2Tone()                                       #Two tones, FC1 FC2
-    # Wvform.Gen1Tone()                                       #One tones, FC1
+    Wvform.maxAmpl    = .8                                   #clipping value
+    Wvform.OverSamp   = 30                                  #Oversampling
+    Wvform.FC1        = 1e6                                 #Tone1,Hz
+    Wvform.FC2        = 3e6                                 #Tone2,Hz
+    Wvform.NumPeriods = 12                                  #Number of Periods
+    # Wvform.Gen2Tone()                                       #Two tones, FC1 FC2
+    Wvform.Gen1Tone()                                       #One tones, FC1
     # Wvform.VSG_SCPI_Write()
     Wvform.plot_IQ_FFT()
     Wvform.WvWrite()
