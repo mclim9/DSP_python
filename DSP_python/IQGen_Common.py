@@ -1,12 +1,5 @@
 ###############################################################################
-#### Purpose : Rohde & Schwarz Single tone generation
-#### Author  :Martin C Lim
-#### Revision: V0.1
-#### Date     : 2017.10.04
-####
-#### 171004 MCL Created first version
-#### 180305 MCL Add GenFM
-#### 180410 MCL Add GenFMCW
+#### Purpose : Rohde & Schwarz waveform generation common functions
 ###############################################################################
 #### Code Begin
 ###############################################################################
@@ -85,7 +78,7 @@ class Common:
         if Plot3[0] != 9999:
             plt.plot(Plot3,"g",Plot3,"g")
 
-        plt.subplot(2, 1, 2)                                # Frequency Domain
+        plt.subplot(2, 1, 2)                                                # Frequency Domain
         if self.IQpoints:
             plt.plot(frq, mag,'bo')
         plt.plot(frq, mag)
