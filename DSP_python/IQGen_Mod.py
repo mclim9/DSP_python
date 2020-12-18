@@ -17,7 +17,7 @@ from IQGen_Common import Common                             #pylint: disable=E04
 
 class IQGen(Common):
     def __init__(self):
-        super(IQGen,self).__init__()
+        super().__init__()
         self.maxAmpl    = 1.0                               #clipping value
         self.OverSamp   = 100                               #Oversampling
         self.FC1        = 5.0e6                             #Tone1,Hz
