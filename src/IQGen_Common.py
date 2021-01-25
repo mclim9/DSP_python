@@ -1,23 +1,23 @@
-###############################################################################
-#### Purpose : Rohde & Schwarz waveform generation common functions
-###############################################################################
-#### Code Begin
-###############################################################################
+# ##############################################################################
+# ### Purpose : Rohde & Schwarz waveform generation common functions
+# ##############################################################################
+# ### Code Begin
+# ##############################################################################
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
 class Common:
     def __init__(self):
-        self.maxAmpl    = 1.0                               #clipping value
-        self.OverSamp   = 10                                #Oversampling
-        self.FC1        = 2e6                               #Tone1,Hz
-        self.FC2        = 3e6                               #Tone2,Hz
-        self.NumPeriods = 100                               #Number of Periods
-        self.fBeta      = 0.2                               #Filter Beta
-        self.IQpoints   = 0                                 #Display points
+        self.maxAmpl    = 1.0                               # clipping value
+        self.OverSamp   = 10                                # Oversampling
+        self.FC1        = 2e6                               # Tone1,Hz
+        self.FC2        = 3e6                               # Tone2,Hz
+        self.NumPeriods = 100                               # Number of Periods
+        self.fBeta      = 0.2                               # Filter Beta
+        self.IQpoints   = 0                                 # Display points
 
-        self.Fs         = 0                                 #Sampling Rate
+        self.Fs         = 0                                 # Sampling Rate
         self.IData      = []
         self.QData      = []
         self.IQlen      = 1
@@ -48,12 +48,12 @@ class Common:
         for i in range(0,len(self.IData)):
             fot.write("%f,%f\n"%(self.IData[i],self.QData[i]))
         fot.close()
-        #print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(self.IData),self.Fs/1e6, self.Fs/(self.IQlen*1e3)))
+        # print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(self.IData),self.Fs/1e6, self.Fs/(self.IQlen*1e3)))
 
-    def plot_IQ_FFT(self, Plot3=[9999, 9999]):                              #pylint: disable=W0102
-        #######################################
-        #### Calculate FFT
-        #######################################
+    def plot_IQ_FFT(self, Plot3=[9999, 9999]):                              # pylint: disable=W0102
+        # ######################################
+        # ### Calculate FFT
+        # ######################################
         #IQ = np.vectorize(complex)(self.IData,self.QData)
         IQ = np.asarray(self.IData) + 1j*np.asarray(self.QData)
         self.IQlen = len(self.IData)
@@ -61,15 +61,15 @@ class Common:
         # fltr = np.kaiser(len(IQ), self.fBeta)
         # IQ = np.multiply(IQ, fltr)
         mag = np.fft.fft(IQ)/self.IQlen
-        mag = np.fft.fftshift(mag)                                          #mag = mag[range(N/2)]
+        mag = np.fft.fftshift(mag)                                          # ag = mag[range(N/2)]
 
         #frq = (np.arange(N)*self.Fs)/N
         frq = np.fft.fftfreq(self.IQlen,d=1/(self.Fs))
         frq = np.fft.fftshift(frq)                                          #frq = frq[range(N/2)]
 
-        #######################################
-        #### Plot Data
-        #######################################
+        # ######################################
+        # ### Plot Data
+        # ######################################
         plt.clf()
         plt.subplot(2, 1, 1)         #Time Domain
         plt.title("I:Blue Q:Yellow")
@@ -96,8 +96,8 @@ class Common:
         ###               Each I (or Q) value is two bytes
         ###               I(2 bytes) + Q(2bytes) = 4 bytes/IQ pair
         ###               NumBytes = NumIQPair * 4
-        from rssd.VSG.Common    import VSG                                  #pylint: disable=C0415,E0401
-        SMW = VSG().jav_Open('192.168.1.114')                               #Create SMW Object
+        from rssd.VSG.Common    import VSG                                  # pylint: disable=C0415,E0401
+        SMW = VSG().jav_Open('192.168.1.114')                               # Create SMW Object
 
         ### ASCII
         scpi  = ':MMEM:DATA:UNPR "NVWFM://var//user//IQGen.wv",#'           # Ascii Cmd
@@ -113,7 +113,7 @@ class Common:
         SMW.write('BB:ARB:WAV:SEL "/var/user/IQGen.wv"')                    # Select Arb File
         print(SMW.query('SYST:ERR?'))
 
-    def plotLine(self, trace1, trace2=[1]):                                 #pylint: disable=W0102
+    def plotLine(self, trace1, trace2=[1]):                                 # pylint: disable=W0102
         plt.plot(trace1,"b")
         if len(trace2) > 1:
             plt.plot(trace2,"y")
