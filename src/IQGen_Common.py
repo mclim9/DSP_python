@@ -80,8 +80,8 @@ class Common:
 
         plt.subplot(2, 1, 2)                                                # Frequency Domain
         if self.IQpoints:
-            plt.plot(frq, mag,'bo')
-        plt.plot(frq, mag)
+            plt.plot(frq, np.real(mag),'bo')
+        plt.plot(frq, np.real(mag))
         plt.xlabel('Freq')
         plt.ylabel('magnitude')
         #plt.xlim(-3e6,3e6)
