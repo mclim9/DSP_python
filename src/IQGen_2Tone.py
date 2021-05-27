@@ -1,25 +1,25 @@
-######################################################################
-#### Author   : Martin C Lim
-#### Revision : V0.1
-#### Date     : 2017.10.04
-######################################################################
-#### Code Begin
-######################################################################
+# #####################################################################
+# ### Author   : Martin C Lim
+# ### Revision : V0.1
+# ### Date     : 2017.10.04
+# #####################################################################
+# ### Code Begin
+# #####################################################################
 import sys
 import numpy             as np
-from IQGen_Common        import Common                      #pylint: disable=E0401
+from IQGen_Common        import Common                      # pylint: disable=E0401
 
 class IQGen(Common):
     def __init__(self):
         super().__init__()
-        self.maxAmpl    = 1                                 #clipping value
-        self.OverSamp   = 30                                #Oversampling
-        self.FC1        = 1e6                               #Tone1,Hz
-        self.FC2        = 3e6                               #Tone2,Hz
-        self.NumPeriods = 10                                #Number of Periods
-        self.fBeta      = 0.2                               #Filter Beta
-        self.IQpoints   = 0                                 #Display points
-        self.Fs         = 0                                 #Sampling Rate
+        self.maxAmpl    = 1                                 # clipping value
+        self.OverSamp   = 30                                # Oversampling
+        self.FC1        = 1e6                               # Tone1,Hz
+        self.FC2        = 3e6                               # Tone2,Hz
+        self.NumPeriods = 10                                # Number of Periods
+        self.fBeta      = 0.2                               # Filter Beta
+        self.IQpoints   = 0                                 # Display points
+        self.Fs         = 0                                 # Sampling Rate
         self.IData      = []
         self.QData      = []
 
@@ -33,23 +33,23 @@ class IQGen(Common):
         return OutStr
 
     def Gen1Tone_IQ(self):
-        ### I:Cos Q:Sin  -Frq:Nul +Frq:Pos 1.000 Normal Case
-        ### I:Sin Q:Cos  -Frq:Neg +Frq:Nul 1.500
-        ### I:Cos Q:Zer  -Frq:Pos +Frq:Pos 0.500
-        ### I:Sin Q:Zer  -Frq:Neg +Frq:Neg 0.015
-        ### I:Zer Q:Sin  -Frq:Neg +Frq:Pos 0.500
-        ### I:Zer Q:Cos  -Frq:Neg +Frq:Pos 0.015
+        # ## I:Cos Q:Sin  -Frq:Nul +Frq:Pos 1.000 Normal Case
+        # ## I:Sin Q:Cos  -Frq:Neg +Frq:Nul 1.500
+        # ## I:Cos Q:Zer  -Frq:Pos +Frq:Pos 0.500
+        # ## I:Sin Q:Zer  -Frq:Neg +Frq:Neg 0.015
+        # ## I:Zer Q:Sin  -Frq:Neg +Frq:Pos 0.500
+        # ## I:Zer Q:Cos  -Frq:Neg +Frq:Pos 0.015
 
-        self.Fs = self.OverSamp*(self.FC1)                  #Sampling Frequency
-        StopTime = self.NumPeriods/self.FC1                 #Waveforms
-        #t = np.arange(0,StopTime,1/self.Fs)                #create time array
-        t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     #Create time array
-        # self.IData = 0.7071 * np.cos(2*np.pi*self.FC1*t)
-        # self.QData = 0.7071 * np.sin(2*np.pi*self.FC1*t)
+        self.Fs = self.OverSamp*(self.FC1)                  # Sampling Frequency
+        StopTime = self.NumPeriods/self.FC1                 # Waveforms
+        # t = np.arange(0,StopTime,1/self.Fs)                # create time array
+        t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     # Create time array
+        #  self.IData = 0.7071 * np.cos(2*np.pi*self.FC1*t)
+        #  self.QData = 0.7071 * np.sin(2*np.pi*self.FC1*t)
         self.IData = np.cos(2*np.pi*self.FC1*t)
         self.QData = np.sin(2*np.pi*self.FC1*t)
 
-        ### Clipping
+        # ## Clipping
         maxA = self.maxAmpl
         for i,currVal in enumerate(self.IData):
             if currVal > self.maxAmpl:
@@ -67,13 +67,13 @@ class IQGen(Common):
 
     def Gen1Tone_Analog(self):
 
-        self.Fs = self.OverSamp*(self.FC1)                  #Sampling Frequency
-        StopTime = self.NumPeriods/self.FC1                 #Waveforms
-        t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     #Create time array
+        self.Fs = self.OverSamp*(self.FC1)                  # Sampling Frequency
+        StopTime = self.NumPeriods/self.FC1                 # Waveforms
+        t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     # Create time array
         self.IData = np.cos(2*np.pi*self.FC1*t)
         self.QData = np.arange(0,StopTime)
 
-        ### Clipping
+        # ## Clipping
         maxA = self.maxAmpl
         for i,currVal in enumerate(self.IData):
             if currVal > self.maxAmpl:
@@ -85,11 +85,11 @@ class IQGen(Common):
         print(f"GenCW: {self.Fs/self.FC1:.2f} Oversample")
 
     def Gen2Tone(self):
-        self.Fs = self.OverSamp*(self.FC1)                  #Sampling Frequency
-        StopTime = self.NumPeriods/self.FC1                 #Waveforms
-        dt = 1/self.Fs                                      #seconds per sample
-        t = np.arange(0,StopTime,dt)                        #create time array
-        t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     #Create time array
+        self.Fs = self.OverSamp*(self.FC1)                  # Sampling Frequency
+        StopTime = self.NumPeriods/self.FC1                 # Waveforms
+        dt = 1/self.Fs                                      # seconds per sample
+        t = np.arange(0,StopTime,dt)                        # create time array
+        t = np.linspace(0,StopTime,num=self.OverSamp*self.NumPeriods, endpoint=False)     # Create time array
         I1_Ch = 0.7071 * np.cos(2*np.pi*self.FC1*t)
         Q1_Ch = 0.7071 * np.sin(2*np.pi*self.FC1*t)
         I2_Ch = 0.7071 * np.cos(2*np.pi*self.FC2*t)
@@ -100,19 +100,19 @@ class IQGen(Common):
         print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1/1e6,self.FC2/1e6))
         print("GenCW: %.2f %.2f Oversample"%(self.Fs/self.FC1,self.Fs/self.FC2))
 
-######################################################################
-### Run if Main
-######################################################################
+# #####################################################################
+# ## Run if Main
+# #####################################################################
 if __name__ == "__main__":
     print(sys.version)
-    Wvform = IQGen()                                        #Create object
-    Wvform.maxAmpl    = .8                                  #clipping value
-    Wvform.OverSamp   = 30                                  #Oversampling
-    Wvform.FC1        = 1e6                                 #Tone1,Hz
-    Wvform.FC2        = 3e6                                 #Tone2,Hz
-    Wvform.NumPeriods = 12                                  #Number of Periods
-    # Wvform.Gen2Tone()                                     #Two tones, FC1 FC2
-    Wvform.Gen1Tone_Analog()                                #One tones, FC1
-    # Wvform.VSG_SCPI_Write()
+    Wvform = IQGen()                                        # Create object
+    Wvform.maxAmpl    = .8                                  # clipping value
+    Wvform.OverSamp   = 30                                  # Oversampling
+    Wvform.FC1        = 1e6                                 # Tone1,Hz
+    Wvform.FC2        = 3e6                                 # Tone2,Hz
+    Wvform.NumPeriods = 12                                  # Number of Periods
+    #  Wvform.Gen2Tone()                                     # Two tones, FC1 FC2
+    Wvform.Gen1Tone_Analog()                                # One tones, FC1
+    #  Wvform.VSG_SCPI_Write()
     Wvform.plot_IQ_FFT()
-    # Wvform.WvWrite()
+    #  Wvform.WvWrite()

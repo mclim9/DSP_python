@@ -62,6 +62,7 @@ class Common:
         # IQ = np.multiply(IQ, fltr)
         mag = np.fft.fft(IQ)/self.IQlen
         mag = np.fft.fftshift(mag)                                          # ag = mag[range(N/2)]
+        mag = 20 * np.log10(np.abs(mag)) + 30
 
         #frq = (np.arange(N)*self.Fs)/N
         frq = np.fft.fftfreq(self.IQlen,d=1/(self.Fs))
@@ -81,12 +82,14 @@ class Common:
         plt.subplot(2, 1, 2)                                                # Frequency Domain
         if self.IQpoints:
             plt.plot(frq, np.real(mag),'bo')
-        plt.plot(frq, np.real(mag))
+        plt.plot(frq, mag)
         plt.xlabel('Freq')
         plt.ylabel('magnitude')
         #plt.xlim(-3e6,3e6)
         plt.grid(True)
-        plt.show()
+        plt.show(block=False)
+        plt.pause(2)
+        plt.close()
 
     def VSG_SCPI_Write(self):
         ### :MMEM:DATA:UNPR "NVWFM://var//user//<wave.wv>",#<numSize><NumBytes><I0Q0...IxQx>
