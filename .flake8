@@ -7,13 +7,15 @@
 [flake8]
 # Disabled:
 # E221 multiple spaces before operator
+# E228 missing whitespace around modulo operator
 # E261 at least two spaces before inline comment
+# E272 multiple spaces before keyword
 # E302 expected 2 blank lines, found 1
 # E305 expected 2 blank lines after class or function definition, found 1
 # E501 line too long (85 > 79 characters)
 # E502 the backslash is redundant between brackets
 # F541 f-string is missing placeholders
 
-ignore= E221, E261, E302, E305, E501, E502, F541
+ignore= E221, E228, E261, E272, E302, E305, E501, E502, F541
 
 

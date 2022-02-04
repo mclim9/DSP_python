@@ -64,15 +64,15 @@ fin.close()                                         # Close Input File
 ###############################################################################
 # Calculate RMS
 ###############################################################################
-RMS = 0
+SUM = 0
 MAX = 0
 for IQ in IQArry:
     SQR = pow(IQ[0], 2) + pow(IQ[1], 2)
-    RMS += SQR
+    SUM += SQR
     if SQR > MAX:
         MAX = SQR
 
-RMS = 10 * math.log10(samples / RMS)
+RMS = 10 * math.log10(samples / SUM)
 MAX = 10 * math.log10(1 / MAX)
 
 print(f"  Comment:{comment}")
