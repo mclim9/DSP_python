@@ -1,3 +1,7 @@
+import math
+import time
+import struct
+import numpy as np
 # ##############################################################################
 # Title     : R&S Waveform creation
 # Reference : AppNote 1GP62 Sec4 pg 15
@@ -35,11 +39,6 @@ Clock       = 983040000                                 # Read from input file
 # ##############################################################################
 # Code Start
 # ##############################################################################
-import math
-import time
-import struct
-import numpy as np
-
 WaveWrit = WaveRead.split(".")[0] + ".wv"
 print("CreateWv.py:" + WaveWrit)
 fin = open(WaveRead, 'r')
