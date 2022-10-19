@@ -31,7 +31,7 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        python -m flake8 DSP_python
+        python -m flake8 src
 
     # - name: Test with pytest
     #   run: |
