@@ -28,9 +28,10 @@ jobs:
         python -m pip install --upgrade pip wheel pylint
         pip install -r requirements.txt
 
-    - name: Lint with pylint
-      run: |
-        python -m pylint DSP_python
+    # - name: Lint with pylint
+    #   run: |
+    #     python -m pylint DSP_python
+    #     python -m flake8 DSP_python
 
     # - name: Test with pytest
     #   run: |
