@@ -1,52 +1,47 @@
-# # ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
-# # ## Purpose : Rohde & Schwarz waveform generation common functions
-# # ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
-# # ## Code Begin
-# # ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##
+# ### Purpose : Rohde & Schwarz waveform generation common functions
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
 class Common:
     def __init__(self):
-        self.maxAmpl    = 1.0                               # clipping value
-        self.OverSamp   = 10                                # Oversampling
-        self.FC1        = 2e6                               # Tone1,Hz
-        self.FC2        = 3e6                               # Tone2,Hz
-        self.NumPeriods = 100                               # Number of Periods
-        self.fBeta      = 0.2                               # Filter Beta
-        self.IQpoints   = 0                                 # Display points
-
-        self.Fs         = 0                                 # Sampling Rate
+        self.maxAmpl    = 1.0           # clipping value
+        self.OverSamp   = 10            # Oversampling
+        self.FC1        = 2e6           # Tone1,Hz
+        self.FC2        = 3e6           # Tone2,Hz
+        self.NumPeriods = 100           # Number of Periods
+        self.fBeta      = 0.2           # Filter Beta
+        self.IQpoints   = 0             # Display points
+        self.Fs         = 0             # Sampling Rate
         self.IData      = []
         self.QData      = []
         self.IQlen      = 1
 
     def __str__(self):
-        OutStr    = 'maxAmpl      : %5.2f\n'%self.maxAmpl +\
-                    'OverSamp     : %5.2f\n'%self.OverSamp +\
-                    'FC1          : %5.2f\n'%self.FC1 +\
-                    'FC2          : %5.2f\n'%self.FC2 +\
-                    'NumPeriods   : %5.2f\n'%self.NumPeriods +\
-                    'fBeta        : %5.2f\n'%self.fBeta
+        OutStr    = 'maxAmpl      : %5.2f\n' % self.maxAmpl +\
+                    'OverSamp     : %5.2f\n' % self.OverSamp +\
+                    'FC1          : %5.2f\n' % self.FC1 +\
+                    'FC2          : %5.2f\n' % self.FC2 +\
+                    'NumPeriods   : %5.2f\n' % self.NumPeriods +\
+                    'fBeta        : %5.2f\n' % self.fBeta
         return OutStr
 
     def WvWrite(self, comment=""):
         comment = sys._getframe().f_back.f_code.co_name + ":" + comment     # pylint: disable=W0212
-        print("WvWrt: %dSamples @ %.0fMHz FFTres:%.3fkHz"%(len(self.IData), self.Fs / 1e6, self.Fs / (len(self.IData) * 1e3)))
+        print("WvWrt: %dSamples @ %.0fMHz FFTres:%.3fkHz" % (len(self.IData), self.Fs / 1e6, self.Fs / (len(self.IData) * 1e3)))
         fot = open("CreateWv.env", 'w')
-        fot.write("# ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##\n")
-        fot.write("# ## CWGen Waveform\n")
-        fot.write("# ##     Waveform     : %d Samples @ %.3f MHz\n"%(len(self.IData), self.Fs / 1e6))
-        fot.write("# ##     Wave Length : %.6f mSec\n"%(len(self.IData) / self.Fs * 1000))
-        fot.write("# ##     Tone1 Freq  : %.3f MHz\n"%(self.FC1 / 1e6))
-        fot.write("# ##     Tone2 Freq  : %.3f MHz\n"%(self.FC2 / 1e6))
-        fot.write("# ##\n")
-        fot.write("# ### ### ### ### ### ### ### ### ### ### ### ### ### ### ##\n")
-        fot.write("#%s\n"%(comment))
-        fot.write("%f\n"%self.Fs)
+        fot.write("####################################################\n")
+        fot.write("### CWGen Waveform\n")
+        fot.write("###     Waveform    : %d Samples @ %.3f MHz\n" % (len(self.IData), self.Fs / 1e6))
+        fot.write("###     Wave Length : %.6f mSec\n" % (len(self.IData) / self.Fs * 1000))
+        fot.write("###     Tone1 Freq  : %.3f MHz\n" % (self.FC1 / 1e6))
+        fot.write("###     Tone2 Freq  : %.3f MHz\n" % (self.FC2 / 1e6))
+        fot.write("###\n")
+        fot.write("####################################################\n")
+        fot.write("#%s\n" % (comment))
+        fot.write("%f\n" % self.Fs)
         for i in range(0, len(self.IData)):
-            fot.write("%f,%f\n"%(self.IData[i], self.QData[i]))
+            fot.write("%f,%f\n" % (self.IData[i], self.QData[i]))
         fot.close()
         # print("CWGen: %d Samples @ %.0fMHz FFT res:%f kHz"%(len(self.IData),self.Fs / 1e6, self.Fs / (self.IQlen*1e3)))
 
@@ -103,16 +98,16 @@ class Common:
         SMW = VSG().jav_Open('192.168.1.114')                               # Create SMW Object
 
         # ## ASCII
-        scpi  = ':MMEM:DATA:UNPR "NVWFM://var//user//IQGen.wv",#'           # Ascii Cmd
-        iqsize= str(len(self.IData) * 4)                                    # Calculate bytes of IQ data
-        scpi  = scpi + str(len(iqsize)) + iqsize                            # Calculate length of iqsize string
+        scpi   = ':MMEM:DATA:UNPR "NVWFM://var//user//IQGen.wv",#'          # Ascii Cmd
+        iqsize = str(len(self.IData) * 4)                                   # Calculate bytes of IQ data
+        scpi   = scpi + str(len(iqsize)) + iqsize                           # Calculate length of iqsize string
         # ## Binary
-        iqdata= np.vstack((self.IData, self.QData)).reshape((-1,), order='F') # Combine I&Q Data
-        bits  = np.array(iqdata * 32767, dtype='>i2')                       # Convert to big-endian 2byte int
-        cmd   = bytes(scpi, 'utf-8') + bits.tostring()                      # Add ASCII + Bin
+        iqdata = np.vstack((self.IData, self.QData)).reshape((-1,), order='F') # Combine I&Q Data
+        bits   = np.array(iqdata * 32767, dtype='>i2')                      # Convert to big-endian 2byte int
+        cmd    = bytes(scpi, 'utf-8') + bits.tostring()                     # Add ASCII + Bin
         SMW.K2.write_raw(cmd)
 
-        SMW.write('SOUR1:BB:ARB:WAV:CLOC "/var/user/IQGen.wv",%f'%self.Fs)  # Set Fs / Clk Rate
+        SMW.write(f'SOUR1:BB:ARB:WAV:CLOC "/var/user/IQGen.wv",{self.Fs}')  # Set Fs / Clk Rate
         SMW.write('BB:ARB:WAV:SEL "/var/user/IQGen.wv"')                    # Select Arb File
         print(SMW.query('SYST:ERR?'))
 
@@ -137,8 +132,5 @@ class Common:
         # plt.savefig("test.png")
         plt.show()
 
-# ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
-# ## Run if Main
-# ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 if __name__ == "__main__":
     print(sys.version)

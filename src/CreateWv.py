@@ -2,6 +2,7 @@ import math
 import time
 import struct
 import numpy as np
+
 # ##############################################################################
 # Title     : R&S Waveform creation
 # Reference : AppNote 1GP62 Sec4 pg 15
@@ -31,9 +32,10 @@ import numpy as np
 #
 # ##############################################################################
 # User Input Settings
-# ##############################################################################
+# ##################################################
+# ############################
 WaveRead    = "CreateWv.env"
-Comment     = ""                                        # Read from input file
+Comment     = " "                                       # Read from input file
 Clock       = 983040000                                 # Read from input file
 
 # ##############################################################################
@@ -41,8 +43,8 @@ Clock       = 983040000                                 # Read from input file
 # ##############################################################################
 WaveWrit = WaveRead.split(".")[0] + ".wv"
 print("CreateWv.py:" + WaveWrit)
-fin = open(WaveRead, 'r')
-fot = open(WaveWrit, 'wb')
+fin  = open(WaveRead, 'r')
+fot  = open(WaveWrit, 'wb')
 date = time.strftime("%Y-%m-%d;%H:%M:%S")
 
 ###############################################################################
@@ -77,30 +79,30 @@ for IQ in IQArry:
 RMS = 10 * math.log10(samples / RMS)
 MAX = 10 * math.log10(1 / MAX)
 
-print("  Comment:%s"%comment)
-print("  ClockRt:%s"%clock)
-print("  Samples:%d"%samples)
-print("  RMSValu:%f"%RMS)
-print("  MaxValu:%f"%MAX)
+print(f"  Comment:{comment}")
+print(f"  ClockRt:{clock}")
+print(f"  Samples:{samples}")
+print(f"  RMSValu:{RMS:.2f}")
+print(f"  MaxValu:{MAX:.2f}")
 
 ###############################################################################
 # File Header Write
 ###############################################################################
-fot.write("{TYPE: SMU-WV,0}")                           # Type: No change needed.
-fot.write("{COMMENT: %s}"%comment)                      # Comment
-fot.write("{DATE:%s}"%date)                             # Date:2005-11-25;12:33:51
-fot.write("{CLOCK:%s}"%clock)                           # Wavefm Clock
-fot.write("{CLOCK MARKER: %s}"%clock)                   # Marker Clock
-fot.write("{LEVEL OFFS:%.4f,%.4f}"%(RMS, MAX))          # RMS,Peak
-                                                        # RMS : 10*log(sum(i^2+q^2)/numsamp)
-                                                        # Peak: 10*log(max(i^2+q^2))
-fot.write("{SAMPLES:%d}"%samples)                       # NumSamples
-# fot.write("{CONTROL LENGTH:%d}"%samples)              # NumSamples MkrOnly?
-fot.write("{MARKER LIST 1: 0:1;20:0}")                  # MarkerList MkrOnly
-fot.write("{MARKER LIST 2: 0:0}")                       # MarkerList MkrOnly
-fot.write("{MARKER LIST 3: 0:0}")                       # MarkerList MkrOnly
-fot.write("{MARKER LIST 4: 0:0}")                       # MarkerList MkrOnly
-fot.write("{WAVEFORM-%d: #"%(4 * samples + 1))          # Waveform = NumSamples * 4 + 1
+# fot.write("{TYPE: SMU-WV,0}")                           # Type: No change needed.
+# fot.write("{COMMENT: %s}" % comment)                    # Comment
+# fot.write("{DATE:%s}" % date)                           # Date:2005-11-25;12:33:51
+# fot.write("{CLOCK:%s}" % clock)                         # Wavefm Clock
+# fot.write("{CLOCK MARKER: %s}" % clock)                 # Marker Clock
+# fot.write("{LEVEL OFFS:%.4f,%.4f}" % (RMS, MAX))        # RMS,Peak
+# # RMS : 10*log(sum(i^2+q^2)/numsamp)
+# # Peak: 10*log(max(i^2+q^2))
+# fot.write("{SAMPLES:%d}" % samples)                     # NumSamples
+# # fot.write("{CONTROL LENGTH:%d}"%samples)              # NumSamples MkrOnly?
+# fot.write("{MARKER LIST 1: 0:1;20:0}")                  # MarkerList MkrOnly
+# fot.write("{MARKER LIST 2: 0:0}")                       # MarkerList MkrOnly
+# fot.write("{MARKER LIST 3: 0:0}")                       # MarkerList MkrOnly
+# fot.write("{MARKER LIST 4: 0:0}")                       # MarkerList MkrOnly
+# fot.write("{WAVEFORM-%d: #" % (4 * samples + 1))        # Waveform = NumSamples * 4 + 1
 
 # ##############################################################################
 # File Data Write
@@ -110,7 +112,7 @@ fot.write("{WAVEFORM-%d: #"%(4 * samples + 1))          # Waveform = NumSamples 
 i = 0
 for IQ in IQArry:
     if (IQ[0] > 1) or (IQ[1] > 1):
-        print("Error IQ > 1: %f, %f"%(IQ[0], IQ[1]))
+        print("Error IQ > 1: %f, %f" % (IQ[0], IQ[1]))
     data = round(IQ[0] * 32767)
     data = struct.pack('<h', data)                      # i:4byte h:2byte H:unsigned2byte
     fot.write(data)

@@ -1,10 +1,4 @@
-# #####################################################################
-# ### Author   : Martin C Lim
-# ### Revision : V0.1
-# ### Date     : 2017.10.04
-# #####################################################################
-# ### Code Begin
-# #####################################################################
+# : Martin C Lim: 2017.10.04
 import sys
 import numpy             as np
 from IQGen_Common        import Common                      # pylint: disable=E0401
@@ -24,12 +18,12 @@ class IQGen(Common):
         self.QData      = []
 
     def __str__(self):
-        OutStr = 'maxAmpl     : %5.2f\n'%self.maxAmpl +\
-                 'OverSamp    : %5.2f\n'%self.OverSamp +\
-                 'FC1         : %5.2f\n'%self.FC1 +\
-                 'FC2         : %5.2f\n'%self.FC2 +\
-                 'NumPeriods  : %5.2f\n'%self.NumPeriods +\
-                 'fBeta       : %5.2f\n'%self.fBeta
+        OutStr = 'maxAmpl     : %5.2f\n' % self.maxAmpl +\
+                 'OverSamp    : %5.2f\n' % self.OverSamp +\
+                 'FC1         : %5.2f\n' % self.FC1 +\
+                 'FC2         : %5.2f\n' % self.FC2 +\
+                 'NumPeriods  : %5.2f\n' % self.NumPeriods +\
+                 'fBeta       : %5.2f\n' % self.fBeta
         return OutStr
 
     def Gen1Tone_IQ(self):
@@ -97,8 +91,8 @@ class IQGen(Common):
         self.IData = I1_Ch + I2_Ch
         self.QData = Q1_Ch + Q2_Ch
 
-        print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1 / 1e6, self.FC2 / 1e6))
-        print("GenCW: %.2f %.2f Oversample"%(self.Fs / self.FC1, self.Fs / self.FC2))
+        print(f"GenCW: {self.FC1 / 1e6:.3f}MHz {self.FC2 / 1e6:.3f}MHz tones generated")
+        print(f"GenCW: {self.Fs / self.FC1:.2f} {self.Fs / self.FC2:.2f} Oversample")
 
 # #####################################################################
 # ## Run if Main
@@ -116,4 +110,4 @@ if __name__ == "__main__":
     # Wvform.Gen1Tone_Analog()                                # One tones, FC1
     # Wvform.VSG_SCPI_Write()
     Wvform.plot_IQ_FFT()
-    Wvform.WvWrite()
+    Wvform.WvWrite("IQGen_2Tone")

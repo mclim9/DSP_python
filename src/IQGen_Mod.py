@@ -1,3 +1,7 @@
+import sys
+import numpy as np
+from IQGen_Common import Common                             # pylint: disable=E0401
+
 # #####################################################################
 # ## Purpose  : Rohde & Schwarz Single tone generation
 # ## Author   : Martin C Lim
@@ -11,9 +15,6 @@
 # #####################################################################
 # ## Code Begin
 # #####################################################################
-import sys
-import numpy as np
-from IQGen_Common import Common                             # pylint: disable=E0401
 
 class IQGen(Common):
     def __init__(self):
@@ -33,12 +34,12 @@ class IQGen(Common):
         self.QData      = []
 
     def __str__(self):
-        OutStr = 'maxAmpl     : %5.2f\n'%self.maxAmpl +\
-                 'OverSamp    : %5.2f\n'%self.OverSamp +\
-                 'FC1         : %5.2f\n'%self.FC1 +\
-                 'FC2         : %5.2f\n'%self.FC2 +\
-                 'NumPeriods  : %5.2f\n'%self.NumPeriods +\
-                 'fBeta       : %5.2f\n'%self.fBeta
+        OutStr = 'maxAmpl     : %5.2f\n' % self.maxAmpl +\
+                 'OverSamp    : %5.2f\n' % self.OverSamp +\
+                 'FC1         : %5.2f\n' % self.FC1 +\
+                 'FC2         : %5.2f\n' % self.FC2 +\
+                 'NumPeriods  : %5.2f\n' % self.NumPeriods +\
+                 'fBeta       : %5.2f\n' % self.fBeta
         return OutStr
 
     def Gen_FM(self):
@@ -60,7 +61,7 @@ class IQGen(Common):
             # ## sin(2(pi)fc+(beta)modArry)
             self.IData[i] = np.cos(2.0 * np.pi * self.FC1 * t + modIndx * mod_arry[i])
             self.QData[i] = np.sin(2.0 * np.pi * self.FC1 * t + modIndx * mod_arry[i])
-        print("GenFM: FC:%.3fMHz FMod:%.3fMHz tones generated"%(self.FC1 / 1e6, self.FMod / 1e6))
+        print("GenFM: FC:%.3fMHz FMod:%.3fMHz tones generated" % (self.FC1 / 1e6, self.FMod / 1e6))
 
         self.WvWrite()
         # self.plot_IQ_FFT(mod_arry)
@@ -98,8 +99,8 @@ class IQGen(Common):
         # self.IData = self.IData[::-1]                     # Reverse I
         # self.QData = self.QData[::-1]                     # Reverse Q
 
-        commnt = "%.3f to %.3fMHz sweep in %.3fmsec"%(self.FC1 / 1e6, self.FC2 / 1e6, RampTime * 1e3)
-        print("GenFM: %fsec ramp at %.0f MHz/Sec"%(RampTime, K / 1e6))
+        commnt = "%.3f to %.3fMHz sweep in %.3fmsec" % (self.FC1 / 1e6, self.FC2 / 1e6, RampTime * 1e3)
+        print("GenFM: %fsec ramp at %.0f MHz/Sec" % (RampTime, K / 1e6))
         print("GenFM: " + commnt)
 
         self.WvWrite(commnt)
@@ -145,8 +146,8 @@ class IQGen(Common):
         self.QData = 0.5 * np.sin(mod * np.pi / 180)
         print(self.IData)
 
-        print("GenCW: %.3fMHz %.3fMHz tones generated"%(self.FC1 / 1e6, self.FC2 / 1e6))
-        print("GenCW: %.2f %.2f Oversample"%(self.Fs / self.FC1, self.Fs / self.FC2))
+        print("GenCW: %.3fMHz %.3fMHz tones generated" % (self.FC1 / 1e6, self.FC2 / 1e6))
+        print("GenCW: %.2f %.2f Oversample" % (self.Fs / self.FC1, self.Fs / self.FC2))
 
         self.WvWrite()
         # self.plot_IQ_FFT(Fs, self.IData, self.QData)

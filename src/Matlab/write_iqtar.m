@@ -1,4 +1,4 @@
-def write_iqtar(iq,filename,samplerate):
+def write_iqtar(iq, filename, samplerate):
    ###SAVE_IQ_TAR_FILE Saves I/Q data to an iq-tar file.
    ###  SAVE_IQ_TAR_FILE(IQ,FILENAME,SAMPLERATE) saves the I/Q data
    ###  in IQ of the given SAMPLERATE to the file FILENAME.
@@ -51,8 +51,8 @@ def write_iqtar(iq,filename,samplerate):
    temp_dir = tempdir;              ### Temp files saved in systems temp directory
 
    ### Assemble filenames
-   filename_iqw_base  = fullfile(temp_dir,filename_base);
-   filename_xml  = fullfile(temp_dir,[filename_base,'.xml']);
+   filename_iqw_base  = fullfile(temp_dir, filename_base);
+   filename_xml  = fullfile(temp_dir, [filename_base, '.xml']);
    filename_xslt_pure = 'open_IqTar_xml_file_in_web_browser.xslt';
    filename_xslt = fullfile(temp_dir,filename_xslt_pure);
 
