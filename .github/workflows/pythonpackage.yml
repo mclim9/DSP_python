@@ -29,8 +29,8 @@ jobs:
         pip install -r requirements.txt
         pip install flake8
 
-    # - name: Lint with pylint
-    #   run: |
+    - name: Lint with pylint
+      run: |
     #     python -m pylint DSP_python
         python -m flake8 DSP_python
 
