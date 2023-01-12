@@ -102,12 +102,17 @@ if __name__ == "__main__":
     Wvform = IQGen()                                        # Create object
     Wvform.maxAmpl    = 1                                   # clipping value
     Wvform.OverSamp   = 30                                  # Oversampling
-    Wvform.FC1        = 1e6                                 # Tone1,Hz
+    Wvform.FC1        = 100e6                               # Tone1,Hz
     Wvform.FC2        = 3e6                                 # Tone2,Hz
     Wvform.NumPeriods = 12                                  # Number of Periods
     # Wvform.Gen2Tone()                                     # Two tones, FC1 FC2
     Wvform.Gen1Tone_IQ()
-    # Wvform.Gen1Tone_Analog()                                # One tones, FC1
+    # Wvform.Gen1Tone_Analog()                              # One tones, FC1
     # Wvform.VSG_SCPI_Write()
-    Wvform.plot_IQ_FFT()
-    Wvform.WvWrite("IQGen_2Tone")
+    # Wvform.plot_IQ_FFT()
+
+    for i in range(1, 5, 1):
+        Wvform.FC1        = i * 100e6                       # Tone1,Hz
+        Wvform.filename = f'IQGen_1Tone_{Wvform.FC1/1e6:.0f}MHz.env'
+        Wvform.WvWrite("IQGen_2Tone")
+        Wvform.createWv()

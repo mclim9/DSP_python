@@ -2,6 +2,7 @@
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+from CreateWv3 import CreateWv
 
 class Common:
     def __init__(self):
@@ -16,6 +17,7 @@ class Common:
         self.IData      = []
         self.QData      = []
         self.IQlen      = 1
+        self.filename   = 'CreateWv.env'
 
     def __str__(self):
         OutStr    = 'maxAmpl      : %5.2f\n' % self.maxAmpl +\
@@ -29,7 +31,7 @@ class Common:
     def WvWrite(self, comment=""):
         comment = sys._getframe().f_back.f_code.co_name + ":" + comment     # pylint: disable=W0212
         print("WvWrt: %dSamples @ %.0fMHz FFTres:%.3fkHz" % (len(self.IData), self.Fs / 1e6, self.Fs / (len(self.IData) * 1e3)))
-        fot = open("CreateWv.env", 'w')
+        fot = open(self.filename, 'w')
         fot.write("####################################################\n")
         fot.write("### CWGen Waveform\n")
         fot.write("###     Waveform    : %d Samples @ %.3f MHz\n" % (len(self.IData), self.Fs / 1e6))
@@ -131,6 +133,9 @@ class Common:
         plt.grid(True)
         # plt.savefig("test.png")
         plt.show()
+
+    def createWv(self):
+        CreateWv(self.filename)
 
 if __name__ == "__main__":
     print(sys.version)
