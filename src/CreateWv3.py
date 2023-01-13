@@ -79,7 +79,7 @@ def CreateWv(fileIn):
     # IQData is a 2byte little edian integer
     # IQData = Round(Real * 32768)
     # ##############################################################################
-    i = 0
+    # i = 0
     for IQ in IQArry:
         if (IQ[0] > 1) or (IQ[1] > 1):
             print(f"Error IQ > 1: {IQ[0]}, {IQ[1]}")
